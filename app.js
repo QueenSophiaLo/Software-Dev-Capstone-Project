@@ -7,6 +7,8 @@ const MongoStore = require('connect-mongo')
 const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 
+const User = require('./models/user')
+
 
 const app = express();
 let port = 3000;
@@ -37,6 +39,27 @@ app.use(session({
 }))
 
 app.use(flash())
+
+/**
+ * Test add for db
+ */
+
+// app.get('/test-add-user', async (req, res) => {
+//     try {
+//       const newUser = new User({
+//         firstName: 'Test User',
+//         lastName: 'Joe'
+//       });
+  
+//       await newUser.save();
+  
+//       res.send(`✅ User created: ${newUser._id}`);
+//     } catch (err) {
+//       console.error('Error inserting user:', err.message);
+//       res.status(500).send('❌ Failed to insert user.');
+//     }
+//   });
+  
 
 app.use((req, res, next) =>{
     console.log(req.session)
