@@ -13,8 +13,21 @@ const app = express();
 let port = 3000;
 let host = 'localhost';
 
-
+app.set('trust proxy', true);
 app.set('view engine', 'ejs');
+
+const allowedIPs = process.env.ALLOWED_IPS.split(',');
+
+function ipWhitelist(req, res, next) {
+  const requestIP = req.ip.replace('::ffff:', '');
+  console.log('Incoming request from IP:', requestIP);
+
+  if (allowedIPs.includes(requestIP)) {
+    return next();
+  } else {
+    return res.status(403).send('Access Denied: Your IP is not whitelisted');
+  }
+}
 
 mongoose.connect(process.env.mongo_uri)
 .then(() =>{
@@ -71,7 +84,7 @@ app.get('/', (req, res) =>{
     res.render('index');
 })
 
-
+app.use(ipWhitelist);
 
 app.use((req, res, next) =>{
     let err = new Error('The server cannot locate ' + req.url);
