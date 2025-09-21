@@ -56,21 +56,21 @@ app.use(flash())
  * Test add for db
  */
 
-// app.get('/test-add-user', async (req, res) => {
-//     try {
-//       const newUser = new User({
-//         firstName: 'Test User',
-//         lastName: 'Joe',
-//         email: 'arisal@charlotte.edu',
-//         password: 'Bello',
-//       });
-//       await newUser.save();
-//       res.send(`✅ User created: ${newUser._id}`);
-//     } catch (err) {
-//       console.error('Error inserting user:', err.message);
-//       res.status(500).send('❌ Failed to insert user.');
-//     }
-//   });
+app.get('/test-add-user', async (req, res) => {
+    try {
+      const newUser = new User({
+        firstName: 'Test User',
+        lastName: 'Joe',
+        email: 'arisal@charlotte.edu',
+        password: 'Bello',
+      });
+      await newUser.save();
+      res.send(`✅ User created: ${newUser._id}`);
+    } catch (err) {
+      console.error('Error inserting user:', err.message);
+      res.status(500).send('❌ Failed to insert user.');
+    }
+  });
 
 app.use((req, res, next) =>{
     console.log(req.session)
