@@ -45,7 +45,7 @@ function randomEmail(length) {
     return result;
 }
 
-mongoose.connect(process.env.mongo_uri3)
+mongoose.connect(process.env.mongo_uri2)
 .then(() =>{
     app.listen(port, host, () =>{
         console.log('Server is running on', port);
