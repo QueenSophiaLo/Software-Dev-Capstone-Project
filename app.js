@@ -8,6 +8,8 @@ const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 
 const User = require('./models/user')
+const FinanceData = require('./models/finance-data');
+const financeData = require("./models/finance-data");
 
 const app = express();
 let port = 3000;
@@ -65,12 +67,28 @@ app.get('/test-add-user', async (req, res) => {
         password: 'Bello',
       });
       await newUser.save();
-      res.send(`✅ User created: ${newUser._id}`);
+      res.send(`User created: ${newUser._id}`);
     } catch (err) {
       console.error('Error inserting user:', err.message);
-      res.status(500).send('❌ Failed to insert user.');
+      res.status(500).send('Failed to insert user.');
     }
-  });
+});
+
+app.get('/test-add-item', async (req, res) =>{
+  try{
+    const newItem = new financeData({
+      category: 'Food',
+      amount: 3000,
+      date: '2004-01-27',
+      description: 'LOLOLOLO'
+    })
+    await newItem.save();
+    res.send(`Item made: ${newItem.category}`);
+  } catch(err){
+    console.error('Error adding item', err.message)
+    res.status(500).set('Failed to insert item')
+  }
+});
 
 app.use((req, res, next) =>{
     console.log(req.session)
