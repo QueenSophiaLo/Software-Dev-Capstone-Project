@@ -1,0 +1,227 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  /* space for fixed navbar so content starts below it */
+  padding-top: 110px; /* matches 90px logo */
+}
+
+/* === Logo === */
+.logo img {
+  height: 90px; /* logo size */
+  width: auto;  /* keep proportions */
+}
+
+/* === Navbar === */
+.navbar {
+  position: fixed;       /* always visible */
+  top: 0;
+  left: 0;
+  width: 100%;           /* full page width */
+  display: flex;
+  align-items: center;   /* center logo + links vertically */
+  justify-content: space-between; /* logo left, links right */
+  padding: 2px 5px;    /* adjust padding as needed */
+  background-color: #f8f9fa; /* Bootstrap bg-light equivalent */
+  border-bottom: 2px solid #000; /* line at bottom */
+  z-index: 1000;         /* stay above everything */
+  flex-wrap: wrap; /* allow links to wrap to next line if needed */
+}
+
+/* === Navbar Links === */
+.navbar-nav {
+  display: flex;
+  flex-direction: row;
+  gap: 15px; /* spacing between links */
+  margin: 0;
+  padding: 15px;
+  flex-wrap: wrap; /* allow wrapping on smaller screens */
+}
+
+.navbar-nav .nav-item {
+  list-style: none;
+  position: relative; /* for dropdown positioning */
+}
+
+.navbar-nav .nav-link {
+  color: #000;
+  text-decoration: none;
+  padding: 8px 12px;
+  transition: color 0.2s ease;
+  white-space: nowrap; /* prevent breaking */
+}
+
+.navbar-nav .nav-link:hover {
+  color: #007bff; /* hover effect (Bootstrap blue) */
+}
+
+/* === Dropdown Menu === */
+.dropdown-menu {
+  display: none; /* hidden by default */
+  position: absolute;
+  top: 100%; /* directly below parent */
+  left: 0;
+  background-color: #f8f9fa;
+  border: 1px solid #ccc;
+  list-style: none;
+  padding: 5px 0;
+  min-width: 180px;
+  z-index: 1000;
+}
+
+.dropdown-menu li {
+  padding: 0;
+}
+
+.dropdown-menu .dropdown-link {
+  display: block;
+  padding: 8px 15px;
+  color: #000;
+  text-decoration: none;
+}
+
+.dropdown-menu .dropdown-link:hover {
+  background-color: #e0e0e0;
+}
+
+/* Show dropdown on hover */
+.nav-item.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+/* === Responsive for smaller screens === */
+@media (max-width: 900px) {
+  .navbar-nav {
+    justify-content: flex-end; /* push links right if wrapped */
+    gap: 10px;                 /* smaller gap on small screens */
+  }
+
+  .navbar {
+    padding: 10px 15px;
+  }
+
+  .logo img {
+    height: 70px; /* shrink logo a bit on smaller screens */
+  }
+
+  body {
+    padding-top: 100px; /* adjust for smaller navbar */
+  }
+}
+
+/* Make html and body full height */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+/* Page wrapper uses flex column to push footer down */
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* full viewport height */
+}
+
+/* Main content grows to fill space */
+.page-content {
+  flex: 1;
+  padding: 20px;
+}
+
+/* Footer styling */
+.footer {
+  background-color: #7a7a7a; /* grey background */
+  color: #e0e0e0;
+  font-family: Arial, sans-serif;
+}
+
+/* Black top line */
+.footer-top-line {
+  border-top: 2px solid black;
+}
+
+/* Footer inner container */
+.footer-container {
+  padding: 30px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 30px;
+}
+
+/* Footer columns */
+.footer-column {
+  flex: 1;
+  min-width: 250px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* Project info */
+.footer h2 {
+  color: #ffffff;
+  margin-bottom: 5px;
+}
+
+/* Links styling */
+.footer-links a {
+  color: #e0e0e0;
+  text-decoration: none;
+  margin-right: 15px;
+  font-size: 14px;
+}
+
+.footer-links a:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+/* Disclaimer + authors */
+.disclaimer p {
+  font-size: 14px;
+  margin: 10px 0;
+}
+
+.disclaimer .italic {
+  font-style: italic;
+}
+
+/* Social links */
+.social-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.social-links a {
+  display: flex;
+  align-items: center;
+  color: #e0e0e0;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.social-links a:hover {
+  color: #ffffff;
+}
+
+.github-icon {
+  height: 16px; /* smaller icon */
+  width: 16px;
+  margin-right: 5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .footer-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .footer-column {
+    width: 100%;
+  }
+  .footer-links a {
+    margin-right: 10px;
+    margin-bottom: 5px;
+  }
+}

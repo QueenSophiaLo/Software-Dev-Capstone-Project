@@ -3,13 +3,17 @@ const controller = require('../controllers/mainController');
 
 const router = express.Router();
 
+// the routes below are example routes for the main page that are unrelated to the user or financial functionalities
+// keep the index route but create new routes for "meet the team" and "contact us"
+// Do we want to have a "ask questions" functionality on the contact us page?
+
 //GET /
 router.get('', controller.index);
 
-//GET /about
-router.get('/about', controller.about);
+//GET /meet-the-team
+router.get('/meet-the-team', controller.meet-the-team);
 
-//GET /contact
-router.get('/contact', controller.contact);
+//GET /contact-us
+router.get('/contact-us', controller.contact-us);
 
 module.exports = router;

@@ -1,29 +1,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/css/style.css"> <!-- adjust path if needed -->
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="logo" href="/">
-      <img src="/images/FIN.png" alt="F.I.N Logo">
-    </a>
-   
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item">
-        <a class="nav-link" href="/">Link</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/about">News</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/about">Budget</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/about">Sign Up</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/about">Log In</a>
-      </li>
-    </ul>
-  </nav>
+<nav class="navbar">
+  <a class="logo" href="/">
+    <img src="/images/FIN.png" alt="F.I.N Logo">
+  </a>
+
+  <ul class="navbar-nav">
+    <!-- About Us Dropdown -->
+    <li class="nav-item dropdown">
+      <a class="nav-link" href="#">About Us &#9662;</a>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-link" href="/meet-the-team">Meet the Team</a></li>
+        <li><a class="dropdown-link" href="/contact-us">Contact Us</a></li>
+      </ul>
+    </li>
+
+    <!-- Financial Services Dropdown -->
+    <li class="nav-item dropdown">
+      <a class="nav-link" href="#">Financial Services &#9662;</a>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-link" href="/link-bank-account">Link Bank Account</a></li>
+        <li><a class="dropdown-link" href="/budget-sheet">Budget Sheet</a></li>
+      </ul>
+    </li>
+
+    <!-- Other Links -->
+    <li class="nav-item"><a class="nav-link" href="/sign-up">Sign Up</a></li>
+    <li class="nav-item"><a class="nav-link" href="/log-in">Log In</a></li>
+  </ul>
+</nav>
 </body>
+
