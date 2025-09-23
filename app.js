@@ -3,16 +3,20 @@ const express = require('express');
 const morgan = require('morgan');
 const session = require('express-session');
 const flash = require('connect-flash');
-const MongoStore = require('connect-mongo')
+const MongoStore = require('connect-mongo');
 const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 
 const User = require('./models/user')
 const financeData = require("./models/finance-data");
 
+const mainrouter = require('./routes/mainRoutes.js');
+
 const app = express();
 let port = 3000;
 let host = 'localhost';
+
+app.use("/", mainrouter);
 
 app.set('trust proxy', true);
 app.set('view engine', 'ejs');
