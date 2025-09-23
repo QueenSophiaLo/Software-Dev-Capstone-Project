@@ -30,7 +30,18 @@ function ipWhitelist(req, res, next) {
   }
 }
 
-mongoose.connect(process.env.mongo_uri2)
+function randomEmail(length) {
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    result += '@charlotte.edu'
+    return result;
+}
+
+mongoose.connect(process.env.mongo_uri3)
 .then(() =>{
     app.listen(port, host, () =>{
         console.log('Server is running on', port);
@@ -59,10 +70,11 @@ app.use(flash())
 
 app.get('/test-add-user', async (req, res) => {
     try {
+      var user_email = randomEmail(10);
       const newUser = new User({
         firstName: 'Test User',
-        lastName: 'Lobby',
-        email: 'Bobby@charlotte.edu',
+        lastName: 'Bobby',
+        email: user_email,
         password: 'Bello',
       });
       await newUser.save();
