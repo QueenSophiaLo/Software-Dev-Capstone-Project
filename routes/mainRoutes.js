@@ -11,9 +11,9 @@ const router = express.Router();
 router.get('', controller.index);
 
 //GET /meet-the-team
-router.get('/meet-the-team', controller.meet-the-team);
+router.get('/meet-the-team', controller.team);
 
 //GET /contact-us
-router.get('/contact-us', controller.contact-us);
+router.get('/contact-us', controller.contact);
 
 module.exports = router;
