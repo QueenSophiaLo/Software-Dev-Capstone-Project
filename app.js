@@ -88,7 +88,7 @@ app.get('/test-add-user', async (req, res) => {
 app.get('/test-add-item', async (req, res) =>{
   try{
     const newItem = new financeData({
-      category: 'Food',
+      category: 'Rent',
       amount: 3000,
       date: '2004-01-27',
       description: 'Test'
