@@ -13,3 +13,7 @@ exports.contact = (req, res, next)=> {
 exports.login = (req, res, next)=>{
     res.render('./users/login')
 }
+
+exports.signup = (req, res, next) =>{
+    res.render('./users/new');
+}

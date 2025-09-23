@@ -18,4 +18,6 @@ router.get('/contact-us', controller.contact);
 
 router.get('/log-in', controller.login);
 
+router.get('/sign-up', controller.signup);
+
 module.exports = router;
