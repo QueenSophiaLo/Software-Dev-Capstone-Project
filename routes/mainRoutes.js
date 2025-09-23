@@ -16,4 +16,6 @@ router.get('/meet-the-team', controller.team);
 //GET /contact-us
 router.get('/contact-us', controller.contact);
 
+router.get('/log-in', controller.login);
+
 module.exports = router;
