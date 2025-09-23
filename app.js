@@ -30,7 +30,7 @@ function ipWhitelist(req, res, next) {
   }
 }
 
-mongoose.connect(process.env.mongo_uri2 || process.env.mongo_uri)
+mongoose.connect(process.env.mongo_uri3)
 .then(() =>{
     app.listen(port, host, () =>{
         console.log('Server is running on', port);
