@@ -8,7 +8,6 @@ const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 
 const User = require('./models/user')
-const FinanceData = require('./models/finance-data');
 const financeData = require("./models/finance-data");
 
 const app = express();
@@ -31,7 +30,7 @@ function ipWhitelist(req, res, next) {
   }
 }
 
-mongoose.connect(process.env.mongo_uri)
+mongoose.connect(process.env.mongo_uri2 || process.env.mongo_uri)
 .then(() =>{
     app.listen(port, host, () =>{
         console.log('Server is running on', port);
@@ -62,8 +61,8 @@ app.get('/test-add-user', async (req, res) => {
     try {
       const newUser = new User({
         firstName: 'Test User',
-        lastName: 'Joe',
-        email: 'arisal@charlotte.edu',
+        lastName: 'Bobby',
+        email: 'Bobby@charlotte.edu',
         password: 'Bello',
       });
       await newUser.save();
@@ -80,7 +79,7 @@ app.get('/test-add-item', async (req, res) =>{
       category: 'Food',
       amount: 3000,
       date: '2004-01-27',
-      description: 'LOLOLOLO'
+      description: 'Test'
     })
     await newItem.save();
     res.send(`Item made: ${newItem.category}`);
