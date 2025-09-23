@@ -30,7 +30,7 @@ function ipWhitelist(req, res, next) {
   }
 }
 
-mongoose.connect(process.env.mongo_uri3)
+mongoose.connect(process.env.mongo_uri2)
 .then(() =>{
     app.listen(port, host, () =>{
         console.log('Server is running on', port);
@@ -61,7 +61,7 @@ app.get('/test-add-user', async (req, res) => {
     try {
       const newUser = new User({
         firstName: 'Test User',
-        lastName: 'Bobby',
+        lastName: 'Lobby',
         email: 'Bobby@charlotte.edu',
         password: 'Bello',
       });
@@ -76,7 +76,7 @@ app.get('/test-add-user', async (req, res) => {
 app.get('/test-add-item', async (req, res) =>{
   try{
     const newItem = new financeData({
-      category: 'Food',
+      category: 'Rent',
       amount: 3000,
       date: '2004-01-27',
       description: 'Test'
