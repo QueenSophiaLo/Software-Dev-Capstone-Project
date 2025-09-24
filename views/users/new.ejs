@@ -1,0 +1,22 @@
+<%- include('../partials/header.ejs')%>
+<main>
+
+    <div class="contianer">
+        <form action="/users" method="POST" class = "newuser-form">
+            <label for="firstName">First Name</label><br>
+            <input type="text" id="firstName" name="firstName"><br><br>
+            <label for="lastName">Last Name</label><br>
+            <input type="text" id="lastName" name="lastName"><br><br>
+            <label for="email">Email</label><br>
+            <input type="email" id="email" name="email"><br><br>
+            <label for="password">Password</label><br>
+            <input type="password" id="password" name="password"><br><br>
+            <button>Sign Up</button><br>
+        </form>
+    </div>
+    
+</main>
+
+</div>
+
+<%- include('../partials/footer.ejs')%>

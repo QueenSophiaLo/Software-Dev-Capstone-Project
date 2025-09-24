@@ -9,3 +9,11 @@ exports.team = (req, res, next)=> {
 exports.contact = (req, res, next)=> {
     res.render('./contact-us');
 };
+
+exports.login = (req, res, next)=>{
+    res.render('./users/login')
+}
+
+exports.signup = (req, res, next) =>{
+    res.render('./users/new');
+}
