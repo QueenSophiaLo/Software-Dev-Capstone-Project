@@ -21,18 +21,6 @@ app.use("/", mainrouter);
 app.set('trust proxy', true);
 app.set('view engine', 'ejs');
 
-const allowedIPs = process.env.ALLOWED_IPS.split(',');
-
-function ipWhitelist(req, res, next) {
-  const requestIP = req.ip.replace('::ffff:', '');
-  console.log('Incoming request from IP:', requestIP);
-
-  if (allowedIPs.includes(requestIP)) {
-    return next();
-  } else {
-    return res.status(403).send('Access Denied: Your IP is not whitelisted');
-  }
-}
 
 function randomEmail(length) {
     var result           = '';
@@ -72,6 +60,8 @@ app.use(flash())
  * Test add for db
  */
 
+let userID;
+
 app.get('/test-add-user', async (req, res) => {
     try {
       var user_email = randomEmail(10);
@@ -82,6 +72,7 @@ app.get('/test-add-user', async (req, res) => {
         password: 'Bello',
       });
       await newUser.save();
+      userID = newUser._id;
       res.send(`User created: ${newUser._id}`);
     } catch (err) {
       console.error('Error inserting user:', err.message);
@@ -92,6 +83,7 @@ app.get('/test-add-user', async (req, res) => {
 app.get('/test-add-item', async (req, res) =>{
   try{
     const newItem = new financeData({
+      userId: userID,
       category: 'Rent',
       amount: 3000,
       date: '2004-01-27',
@@ -117,7 +109,6 @@ app.get('/', (req, res) =>{
     res.render('index');
 })
 
-app.use(ipWhitelist);
 
 app.use((req, res, next) =>{
     let err = new Error('The server cannot locate ' + req.url);
