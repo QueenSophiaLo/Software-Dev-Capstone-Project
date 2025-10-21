@@ -11,11 +11,13 @@ const User = require('./models/user')
 const financeData = require("./models/finance-data");
 
 const mainrouter = require('./routes/mainRoutes.js');
+const userrouter = require('./routes/userRoutes.js');
 
 const app = express();
 let port = 3000;
 let host = 'localhost';
 
+app.use("/users", userrouter);
 app.use("/", mainrouter);
 
 app.set('trust proxy', true);
