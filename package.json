@@ -15,7 +15,7 @@
   "type": "commonjs",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "dependencies": {
     "auth": "^1.2.3",
@@ -37,5 +37,9 @@
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "session": "^0.1.0"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0",
+    "supertest": "^7.1.4"
   }
 }
