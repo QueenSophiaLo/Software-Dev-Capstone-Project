@@ -1,6 +1,8 @@
 const model = require('../models/user');
 
-exports.login = (req, res, next)=>{
+
+
+exports.loginUser = (req, res, next)=>{
     let email = req.body.email;
     let password = req.body.password
     
@@ -34,7 +36,7 @@ exports.login = (req, res, next)=>{
     .catch(err => next(err))
 };
 
-exports.signup = (req, res, next) =>{
+exports.signupUser = (req, res, next) =>{
     let user = new model(req.body);
     user.save()
     .then(user =>{
