@@ -43,22 +43,31 @@ exports.loginUser = (req, res, next)=>{
 };
 
 exports.signupUser = (req, res, next) =>{
-    let user = new model(req.body);
-    user.save()
-    .then(user =>{
-        req.session.save(() =>{
-            res.redirect('/users/log-in')
-        })
-    })
-    .catch(err =>{
-        if(err.code === 11000){
+    const {name, email, password} = req.body;
+
+    let user = new model({name, email, password});
+
+    if(req.body.confirmpassword === req.body.password){
+        user.save()
+        .then(user =>{
             req.session.save(() =>{
-                err.message("Error in sign up")
-                return res.redirect('./users/new')
+                res.redirect('/users/log-in')
             })
-        }
-        else{
-            next(err);
-        }
-    })
+        })
+        .catch(err =>{
+            if(err.code === 11000){
+                req.session.save(() =>{
+                    err.message("Error in sign up")
+                    return res.redirect('./users/new')
+                })
+            }
+            else{
+                next(err);
+            }
+        })
+    }
+    else{
+        console.log("Incorrect Passwords dont match")
+    }
+    
 };
