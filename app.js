@@ -62,42 +62,42 @@ app.use(flash())
  * Test add for db
  */
 
-let userID;
+// let userID;
 
-app.get('/test-add-user', async (req, res) => {
-    try {
-      var user_email = randomEmail(10);
-      const newUser = new User({
-        firstName: 'Test User',
-        lastName: 'Bobby',
-        email: user_email,
-        password: 'Bello',
-      });
-      await newUser.save();
-      userID = newUser._id;
-      res.send(`User created: ${newUser._id}`);
-    } catch (err) {
-      console.error('Error inserting user:', err.message);
-      res.status(500).send('Failed to insert user.');
-    }
-});
+// app.get('/test-add-user', async (req, res) => {
+//     try {
+//       var user_email = randomEmail(10);
+//       const newUser = new User({
+//         firstName: 'Test User',
+//         lastName: 'Bobby',
+//         email: user_email,
+//         password: 'Bello',
+//       });
+//       await newUser.save();
+//       userID = newUser._id;
+//       res.send(`User created: ${newUser._id}`);
+//     } catch (err) {
+//       console.error('Error inserting user:', err.message);
+//       res.status(500).send('Failed to insert user.');
+//     }
+// });
 
-app.get('/test-add-item', async (req, res) =>{
-  try{
-    const newItem = new financeData({
-      userId: userID,
-      category: 'Rent',
-      amount: 3000,
-      date: '2004-01-27',
-      description: 'Test'
-    })
-    await newItem.save();
-    res.send(`Item made: ${newItem.category}`);
-  } catch(err){
-    console.error('Error adding item', err.message)
-    res.status(500).set('Failed to insert item')
-  }
-});
+// app.get('/test-add-item', async (req, res) =>{
+//   try{
+//     const newItem = new financeData({
+//       userId: userID,
+//       category: 'Rent',
+//       amount: 3000,
+//       date: '2004-01-27',
+//       description: 'Test'
+//     })
+//     await newItem.save();
+//     res.send(`Item made: ${newItem.category}`);
+//   } catch(err){
+//     console.error('Error adding item', err.message)
+//     res.status(500).set('Failed to insert item')
+//   }
+// });
 
 app.use((req, res, next) =>{
     console.log(req.session)
