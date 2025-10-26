@@ -9,11 +9,13 @@ const router = express.Router();
 router.get('/sign-up', controller.signup);
 
 //POST /users: create a new user
+router.post('/sign-up', controller.signupUser)
 
 //GET /login: send login page to client
 router.get('/log-in', controller.login);
 
 //POST /login: start new user session
+router.post('/login', controller.loginUser);
 
 //GET /profile: send profile page to client
 

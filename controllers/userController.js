@@ -1,6 +1,12 @@
 const model = require('../models/user');
 
+exports.login = (req, res) =>{
+    return res.render('./users/login')
+}
 
+exports.signup = (req, res) =>{
+    return res.render('./users/new')
+}
 
 exports.loginUser = (req, res, next)=>{
     let email = req.body.email;
