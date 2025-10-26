@@ -20,7 +20,7 @@ exports.loginUser = (req, res, next)=>{
                 if(result){
                     req.session.user = user._id;
                     req.session.save(() =>{
-                        res.redirect('/users/profile')
+                        console.log("login sucess")
                     })
                 }
                 else{
