@@ -3,15 +3,16 @@
 
     <div class="contianer">
         <form action="/users/sign-up" method="POST" class = "newuser-form">
-            <label for="firstName">First Name</label><br>
+            <label for="firstName">Name</label><br>
             <input type="text" id="firstName" name="firstName"><br><br>
-            <label for="lastName">Last Name</label><br>
-            <input type="text" id="lastName" name="lastName"><br><br>
             <label for="email">Email</label><br>
             <input type="email" id="email" name="email"><br><br>
             <label for="password">Password</label><br>
             <input type="password" id="password" name="password"><br><br>
-            <button>Sign Up</button><br>
+            <label for="lastName">Confirm Password</label><br>
+            <input type="text" id="lastName" name="lastName"><br><br>
+            <button class="reg-button">Register</button><br>
+            <p>Have an account? <a href="/users/log-in">Login</a></p>
         </form>
     </div>
     

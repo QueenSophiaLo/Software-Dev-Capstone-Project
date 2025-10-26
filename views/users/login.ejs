@@ -1,12 +1,13 @@
 <%- include('../partials/header.ejs')%>
 <main>
-    <div>
-    <form action="/users/log-in" method="POST">
+    <div class="contianer">
+    <form action="/users/log-in" method="POST" class="login-form">
         <label for="email">Email</label><br>
         <input type="email" id="email" name="email" required><br><br>
         <label for="password">Password</label><br>
         <input type="password" id="password" name="password" required><br><br>
-        <button>Login</button><br>
+        <button class="reg-button">Login</button><br>
+        <p>Dont have an account? <a href="/users/sign-up">Register</a></p>
     </form>
     </div>
 </main>
