@@ -1,39 +1,21 @@
 require("dotenv").config();
 const express = require('express');
 const morgan = require('morgan');
+const mainrouter = require('./routes/mainRoutes.js');
+const userRoutes = require('./routes/userRoutes.js');
 const session = require('express-session');
 const flash = require('connect-flash');
 const MongoStore = require('connect-mongo');
 const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 
-const User = require('./models/user')
-const financeData = require("./models/finance-data");
-
-const mainrouter = require('./routes/mainRoutes.js');
-const userrouter = require('./routes/userRoutes.js');
 
 const app = express();
 let port = 3000;
 let host = 'localhost';
 
-app.use("/users", userrouter);
-app.use("/", mainrouter);
-
 app.set('trust proxy', true);
 app.set('view engine', 'ejs');
-
-
-function randomEmail(length) {
-    var result           = '';
-    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-    var charactersLength = characters.length;
-    for ( var i = 0; i < length; i++ ) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    result += '@charlotte.edu'
-    return result;
-}
 
 mongoose.connect(process.env.mongo_uri2)
 .then(() =>{
@@ -53,51 +35,10 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {maxAge: 60*60*1000},
-    store: new MongoStore({mongoUrl: process.env.mongo_uri})
+    store: new MongoStore({mongoUrl: process.env.mongo_uri2})
 }))
 
 app.use(flash())
-
-/**
- * Test add for db
- */
-
-// let userID;
-
-// app.get('/test-add-user', async (req, res) => {
-//     try {
-//       var user_email = randomEmail(10);
-//       const newUser = new User({
-//         firstName: 'Test User',
-//         lastName: 'Bobby',
-//         email: user_email,
-//         password: 'Bello',
-//       });
-//       await newUser.save();
-//       userID = newUser._id;
-//       res.send(`User created: ${newUser._id}`);
-//     } catch (err) {
-//       console.error('Error inserting user:', err.message);
-//       res.status(500).send('Failed to insert user.');
-//     }
-// });
-
-// app.get('/test-add-item', async (req, res) =>{
-//   try{
-//     const newItem = new financeData({
-//       userId: userID,
-//       category: 'Rent',
-//       amount: 3000,
-//       date: '2004-01-27',
-//       description: 'Test'
-//     })
-//     await newItem.save();
-//     res.send(`Item made: ${newItem.category}`);
-//   } catch(err){
-//     console.error('Error adding item', err.message)
-//     res.status(500).set('Failed to insert item')
-//   }
-// });
 
 app.use((req, res, next) =>{
     console.log(req.session)
@@ -110,6 +51,9 @@ app.use((req, res, next) =>{
 app.get('/', (req, res) =>{
     res.render('index');
 })
+app.use('/', mainrouter);
+app.use('/users', userRoutes);
+
 
 
 app.use((req, res, next) =>{

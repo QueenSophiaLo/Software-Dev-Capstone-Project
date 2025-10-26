@@ -11,7 +11,7 @@ const userSchema = new Schema({
 
 userSchema.pre('save', function(next){
     let user = this;
-    if(!user.isModified(password)){
+    if(!user.isModified('password')){
         return next;
     }
     bcrypty.hash(user.password, 10)

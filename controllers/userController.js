@@ -26,7 +26,7 @@ exports.loginUser = (req, res, next)=>{
                 else{
                     console.log("wrong password")
                     req.session.save(() =>{
-                        res.redirect('/users/login')
+                        res.redirect('/users/log-in')
                     })
                 }
             })
@@ -35,7 +35,7 @@ exports.loginUser = (req, res, next)=>{
         else{
             console.log("wrong email")
             req.session.save(() =>{
-                res.redirect('/users/login')
+                res.redirect('/users/log-in')
             })
         }
     })
@@ -47,7 +47,7 @@ exports.signupUser = (req, res, next) =>{
     user.save()
     .then(user =>{
         req.session.save(() =>{
-            res.redirect('/users/login')
+            res.redirect('/users/log-in')
         })
     })
     .catch(err =>{
