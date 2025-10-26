@@ -17,13 +17,16 @@ let host = 'localhost';
 app.set('trust proxy', true);
 app.set('view engine', 'ejs');
 
-mongoose.connect(process.env.mongo_uri2)
-.then(() =>{
-    app.listen(port, host, () =>{
-        console.log('Server is running on', port);
+
+if(process.env.NODE_ENV !== 'test'){
+    mongoose.connect(process.env.mongo_uri2)
+    .then(() =>{
+        app.listen(port, host, () =>{
+            console.log('Server is running on', port);
+        })
     })
-})
-.catch(err => console.log(err.message));
+    .catch(err => console.log(err.message));
+}
 
 app.use(express.static('public'));
 app.use(express.urlencoded({extended: true}));
@@ -41,7 +44,7 @@ app.use(session({
 app.use(flash())
 
 app.use((req, res, next) =>{
-    console.log(req.session)
+    // console.log(req.session)
     res.locals.user = req.session.user|| null
     res.locals.successMessages = req.flash('success');
     res.locals.errorMessages = req.flash('error');

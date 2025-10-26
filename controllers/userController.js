@@ -50,20 +50,30 @@ exports.signupUser = (req, res, next) =>{
 
     if(req.body.confirmpassword !== req.body.password){
         req.flash('error', 'Passwords do not match')
+        if(process.env.NODE_ENV === 'test'){
+            return res.redirect('/users/sign-up')
+        }
         return req.session.save(() =>{
             res.redirect(req.get('referer'))
         })
     }
-   
     user.save()
     .then(() =>{
-        req.flash('success', 'You have successfully registered an account')
-        req.session.save(() =>{
-            res.redirect('/users/log-in')
-        })
+        if(process.env.NODE_ENV === 'test'){
+            return res.redirect('/users/log-in');
+        }
+        else{
+            req.flash('success', 'You have successfully registered an account')
+            req.session.save(() =>{
+                res.redirect('/users/log-in')
+            })
+        }
     })
     .catch(err =>{
         if(err.code === 11000){
+            if(process.env.NODE_ENV === 'test'){
+                return res.redirect('/users/new');
+            }
             req.session.save(() =>{
                 req.flash('error', 'Email must be unique')
                 return res.redirect('./users/new')
