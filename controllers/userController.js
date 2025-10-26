@@ -19,12 +19,13 @@ exports.loginUser = (req, res, next)=>{
             .then(result =>{
                 if(result){
                     req.session.user = user._id;
+                    req.flash('success', 'You have successfully logged in')
                     req.session.save(() =>{
-                        console.log("login sucess")
+                        res.redirect('/')
                     })
                 }
                 else{
-                    console.log("wrong password")
+                    req.flash('error', 'Wrong Password')
                     req.session.save(() =>{
                         res.redirect('/users/log-in')
                     })
@@ -33,7 +34,7 @@ exports.loginUser = (req, res, next)=>{
             .catch()
         }
         else{
-            console.log("wrong email")
+            req.flash('error', 'Wrong Email')
             req.session.save(() =>{
                 res.redirect('/users/log-in')
             })
@@ -47,27 +48,29 @@ exports.signupUser = (req, res, next) =>{
 
     let user = new model({name, email, password});
 
-    if(req.body.confirmpassword === req.body.password){
-        user.save()
-        .then(user =>{
+    if(req.body.confirmpassword !== req.body.password){
+        req.flash('error', 'Passwords do not match')
+        return req.session.save(() =>{
+            res.redirect(req.get('referer'))
+        })
+    }
+   
+    user.save()
+    .then(() =>{
+        req.flash('success', 'You have successfully registered an account')
+        req.session.save(() =>{
+            res.redirect('/users/log-in')
+        })
+    })
+    .catch(err =>{
+        if(err.code === 11000){
             req.session.save(() =>{
-                res.redirect('/users/log-in')
+                req.flash('error', 'Email must be unique')
+                return res.redirect('./users/new')
             })
-        })
-        .catch(err =>{
-            if(err.code === 11000){
-                req.session.save(() =>{
-                    err.message("Error in sign up")
-                    return res.redirect('./users/new')
-                })
-            }
-            else{
-                next(err);
-            }
-        })
-    }
-    else{
-        console.log("Incorrect Passwords dont match")
-    }
-    
+        }
+        else{
+            next(err);
+        }
+    })
 };

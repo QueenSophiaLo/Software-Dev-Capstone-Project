@@ -1,5 +1,6 @@
 const express = require('express');
 const controller = require('../controllers/userController');
+const valid = require('../middleware/validator')
 
 // declare const
 
@@ -9,13 +10,13 @@ const router = express.Router();
 router.get('/sign-up', controller.signup);
 
 //POST /users: create a new user
-router.post('/sign-up', controller.signupUser)
+router.post('/sign-up', valid.validatorSignUp, valid.validateResults, controller.signupUser)
 
 //GET /login: send login page to client
 router.get('/log-in', controller.login);
 
 //POST /login: start new user session
-router.post('/log-in', controller.loginUser);
+router.post('/log-in', valid.validateLogin, valid.validateResults, controller.loginUser);
 
 //GET /profile: send profile page to client
 

@@ -370,3 +370,23 @@ html, body {
 .team-links a:hover {
   color: #0073b1;
 }
+
+/* === Flash Messages === */
+
+.success {
+  background: #2fbd08;
+  color: #fff;
+  width: 70%;
+  margin: 0 auto 1rem auto;
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.error {
+  background: red;
+  color: #fff;
+  width: 70%;
+  margin: 0 auto 1rem auto;
+  text-align: center;
+  padding: 0.5rem 0;
+}
