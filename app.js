@@ -44,7 +44,7 @@ app.use(session({
 app.use(flash())
 
 app.use((req, res, next) =>{
-    // console.log(req.session)
+    console.log(req.session)
     res.locals.user = req.session.user|| null
     res.locals.successMessages = req.flash('success');
     res.locals.errorMessages = req.flash('error');
@@ -74,5 +74,3 @@ app.use((err, req, res, next) =>{
     res.status(err.status);
     res.render('error', {error: err});
 })
-
-module.exports = app;
