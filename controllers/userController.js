@@ -44,19 +44,7 @@ exports.loginUser = (req, res, next)=>{
 };
 
 exports.signupUser = (req, res, next) =>{
-    const {name, email, password} = req.body;
-
-    let user = new model({name, email, password});
-
-    if(req.body.confirmpassword !== req.body.password){
-        req.flash('error', 'Passwords do not match')
-        if(process.env.NODE_ENV === 'test'){
-            return res.redirect('/users/sign-up')
-        }
-        return req.session.save(() =>{
-            res.redirect(req.get('referer'))
-        })
-    }
+    let user = new model(req.body);
     user.save()
     .then(() =>{
         if(process.env.NODE_ENV === 'test'){
