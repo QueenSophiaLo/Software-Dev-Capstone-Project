@@ -1,18 +1,9 @@
 process.env.NODE_ENV = 'test';
 const request = require('supertest')
 const { login, signup, loginUser, signupUser } = require('../controllers/userController');
-const { validatorSignUp, validateResults } = require('../middleware/validator');
 const model = require('../models/user');
 const app = require('../app.js')
 
-app.use((req, res, next) => {
-    req.session = {
-        save: (cb) => cb && cb(),
-        user: null,
-    };
-    req.flash = jest.fn();
-    next();
-});
 
 jest.mock('../models/user');
 
