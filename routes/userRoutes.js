@@ -1,6 +1,7 @@
 const express = require('express');
 const controller = require('../controllers/userController');
 const valid = require('../middleware/validator')
+const auth = require('../middleware/auth')
 
 // declare const
 
@@ -21,5 +22,6 @@ router.post('/log-in', valid.validateLogin, valid.validateResults, controller.lo
 //GET /profile: send profile page to client
 
 //GET /logout: logout current user session
+router.get('/logout', auth.isLoggedIn, controller.logOut);
 
 module.exports = router;
