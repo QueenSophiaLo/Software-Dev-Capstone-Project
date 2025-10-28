@@ -1,7 +1,15 @@
-// declare const
+const express = require('express');
+const controller = require('../controllers/budgetController');
 
 const router = express.Router();
 
-// figure out budget route stuffs
+// GET /budget-dashboard or home dashboard
+router.get('/', controller.index);
+
+// GET /add-bank
+router.get('/add-bank', controller.budget);
+
+// GET /budget
+router.get('/budget', controller.bankaccount);
 
 module.exports = router;
