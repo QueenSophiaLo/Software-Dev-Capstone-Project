@@ -48,6 +48,7 @@ exports.loginUser = (req, res, next)=>{
                 res.redirect('/users/log-in');
             }
             req.session.save(() =>{
+                req.flash('error', 'Wrong Email')
                 res.redirect('/users/log-in')
             })
         }
@@ -84,3 +85,13 @@ exports.signupUser = (req, res, next) =>{
         }
     })
 };
+
+exports.logOut = (req, res, next) =>{
+    req.session.destroy(err =>{
+        if(err){
+            next(err)
+        } else{
+            res.redirect('/');
+        }
+    })
+}
