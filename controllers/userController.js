@@ -26,17 +26,17 @@ exports.loginUser = (req, res, next)=>{
                     req.session.user = user._id;
                     req.flash('success', 'You have successfully logged in')
                     req.session.save(() =>{
-                        res.redirect('/')
+                        return res.redirect('/')
                     })
                 }
                 else{
                     if(process.env.NODE_ENV === 'test'){
                         req.flash('error', 'Wrong Password')
-                        res.redirect('/users/log-in');
+                        return res.redirect('/users/log-in');
                     }
                     req.flash('error', 'Wrong Password')
                     req.session.save(() =>{
-                        res.redirect('/users/log-in')
+                        return res.redirect('/users/log-in')
                     })
                 }
             })
@@ -45,11 +45,11 @@ exports.loginUser = (req, res, next)=>{
         else{
             if(process.env.NODE_ENV === 'test'){
                 req.flash('error', 'Wrong Email')
-                res.redirect('/users/log-in');
+                return res.redirect('/users/log-in');
             }
             req.session.save(() =>{
                 req.flash('error', 'Wrong Email')
-                res.redirect('/users/log-in')
+                return res.redirect('/users/log-in')
             })
         }
     })
@@ -66,7 +66,7 @@ exports.signupUser = (req, res, next) =>{
         else{
             req.flash('success', 'You have successfully registered an account')
             req.session.save(() =>{
-                res.redirect('/users/log-in')
+                return res.redirect('/users/log-in')
             })
         }
     })

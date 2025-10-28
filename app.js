@@ -74,3 +74,5 @@ app.use((err, req, res, next) =>{
     res.status(err.status);
     res.render('error', {error: err});
 })
+
+module.exports = app;

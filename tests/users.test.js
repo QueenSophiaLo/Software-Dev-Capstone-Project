@@ -1,10 +1,21 @@
 process.env.NODE_ENV = 'test';
-const { describe } = require('node:test');
+const request = require('supertest')
 const { login, signup, loginUser, signupUser } = require('../controllers/userController');
 const { validatorSignUp, validateResults } = require('../middleware/validator');
 const model = require('../models/user');
+const app = require('../app.js')
+
+app.use((req, res, next) => {
+    req.session = {
+        save: (cb) => cb && cb(),
+        user: null,
+    };
+    req.flash = jest.fn();
+    next();
+});
 
 jest.mock('../models/user');
+
 
 describe('User Controller Unit Tests', () =>{
     let req, res, next;
@@ -149,4 +160,47 @@ describe('User Controller Unit Tests', () =>{
             expect(res.redirect).toHaveBeenCalledWith('/users/log-in');
         })
     })
+})
+
+describe('User Routers Unit Test', () =>{
+
+    describe('/GET: /users/sign-up', () =>{
+        it('Should render the /sign-up page', async () =>{
+            const res = await request(app).get('/users/sign-up')
+            expect(res.statusCode).toBe(200);
+        })
+    })
+
+    describe('/GET: /users/log-in', () =>{
+        it('Should render the /sign-up page', async () =>{
+            const res = await request(app).get('/users/log-in')
+            expect(res.statusCode).toBe(200);
+        })
+    })
+
+    describe('/GET: /users/logout', () =>{
+        it('Should render the /logout page', async () =>{
+            const res = await request(app).get('/users/logout')
+            expect(res.statusCode).toBe(302);
+        })
+    })
+
+    describe('/POST: /users/log-in', () =>{
+        it('Should send post request for the /log-in route', async () =>{
+            const res = await request(app).post('/users/log-in')
+            expect(res.statusCode).toBe(302);
+        })
+    })
+
+    describe('/POST: /users/log-in', () =>{
+        it('Should send post request for the /sign-up route', async () =>{
+            const res = await request(app).post('/users/sign-up')
+            expect(res.statusCode).toBe(302);
+        })
+    })
+    
+})
+
+describe('User Model Unit Test', () =>{
+
 })
