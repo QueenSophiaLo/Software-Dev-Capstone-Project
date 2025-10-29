@@ -2,6 +2,7 @@
 require("dotenv").config();
 const mongoose = require('mongoose');
 const Resource = require('./models/resource'); // Make sure this path is correct
+const { type } = require("os");
 
 // This is the data you want to add to your database
 const resourcesToSeed = [
@@ -46,6 +47,13 @@ const resourcesToSeed = [
         type: "Video",
         videoUrl: "https://www.youtube.com/embed/UE6PapZxYIs?si=U3XXaSslJR0ZLGXS",
         categories: ["Saving", "Finance Basics"]
+    },
+    {
+        title: "Infographic: 10 Steps to Financial Freedom",
+        description: "A visual guide to building wealth, from setting goals to investing and protecting your assets.",
+        type: "Infographic",
+        imageUrl: "/images/financial-freedom-infographic.jpg",
+        categories: ["Investing", "Finance Basics", "Saving"]
     }
 ];
 
