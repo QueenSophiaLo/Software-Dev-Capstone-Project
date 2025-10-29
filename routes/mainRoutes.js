@@ -16,4 +16,10 @@ router.get('/meet-the-team', controller.team);
 //GET /contact-us
 router.get('/contact-us', controller.contact);
 
+//GET /resources: Show list of all resources
+router.get('/resources', controller.resources);
+
+//GET /resources/:id: Show a single resource (the viewer screen)
+router.get('/resources/:id', controller.resourceDetail);
+
 module.exports = router;

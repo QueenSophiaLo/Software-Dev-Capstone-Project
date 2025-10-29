@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Financial Resources</title>
+    <%- include('./partials/header.ejs'); %>
+    <style>
+        /* Basic styles for the resource page */
+        .resources-container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        .resource-filters { margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+        .filter-btn { text-decoration: none; padding: 8px 15px; background-color: #eee; color: #333; border-radius: 20px; }
+        .filter-btn.active { background-color: #007bff; color: white; }
+        .search-bar { padding: 8px; border: 1px solid #ccc; border-radius: 5px; }
+        .resource-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .resource-card { background: #fff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow: hidden; }
+        .resource-card img { width: 100%; height: 180px; object-fit: cover; }
+        .resource-card-content { padding: 15px; }
+        .resource-card-content h3 { margin-top: 0; }
+        .resource-card-content a { text-decoration: none; color: #007bff; font-weight: bold; }
+    </style>
+</head>
+
+<div class="resources-container">
+    <h1>Financial Resources</h1>
+    <p>Educate yourself with these articles and videos on financial habits.</p>
+
+    <form action="/resources" method="GET" class="resource-filters">
+        <input type="search" name="search" class="search-bar" placeholder="Search by title..." value="<%= typeof searchTerm !== 'undefined' ? searchTerm : '' %>">
+        
+        <a href="/resources" class="filter-btn <%= typeof selectedCategory === 'undefined' ? 'active' : '' %>">All</a>
+        <% categories.forEach(category => { %>
+            <a href="/resources?category=<%= category %>" 
+               class="filter-btn <%= (typeof selectedCategory !== 'undefined' && selectedCategory === category) ? 'active' : '' %>">
+                <%= category %>
+            </a>
+        <% }); %>
+
+        <button type="submit" class="home-btn start" style="padding: 8px 15px;">Search</button>
+    </form>
+
+    <div class="resource-grid">
+        <% if (resources.length > 0) { %>
+            <% resources.forEach(resource => { %>
+                <div class="resource-card">
+                    <% if (resource.thumbnailUrl) { %>
+                        <img src="<%= resource.thumbnailUrl %>" alt="<%= resource.title %>">
+                    <% } %>
+                    <div class="resource-card-content">
+                        <h3><%= resource.title %></h3>
+                        <p><%= resource.description %></p>
+                        <a href="/resources/<%= resource._id %>">Read More &raquo;</a>
+                    </div>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <p>No resources found matching your criteria.</p>
+        <% } %>
+    </div>
+
+</div>
+
+<%- include('./partials/footer.ejs')%>
+</html>
