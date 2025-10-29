@@ -23,12 +23,12 @@
     <h1>Financial Resources</h1>
     <p>Educate yourself with these articles and videos on financial habits.</p>
 
-    <form action="/resources" method="GET" class="resource-filters">
+    <form action="/financials/resources" method="GET" class="resource-filters">
         <input type="search" name="search" class="search-bar" placeholder="Search by title..." value="<%= typeof searchTerm !== 'undefined' ? searchTerm : '' %>">
         
-        <a href="/resources" class="filter-btn <%= typeof selectedCategory === 'undefined' ? 'active' : '' %>">All</a>
+        <a href="/financials/resources" class="filter-btn <%= typeof selectedCategory === 'undefined' ? 'active' : '' %>">All</a>
         <% categories.forEach(category => { %>
-            <a href="/resources?category=<%= category %>" 
+            <a href="/financials/resources?category=<%= category %>" 
                class="filter-btn <%= (typeof selectedCategory !== 'undefined' && selectedCategory === category) ? 'active' : '' %>">
                 <%= category %>
             </a>
@@ -47,7 +47,7 @@
                     <div class="resource-card-content">
                         <h3><%= resource.title %></h3>
                         <p><%= resource.description %></p>
-                        <a href="/resources/<%= resource._id %>">Read More &raquo;</a>
+                        <a href="/financials/resources/<%= resource._id %>">Read More &raquo;</a>
                     </div>
                 </div>
             <% }); %>

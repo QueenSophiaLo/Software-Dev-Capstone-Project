@@ -56,6 +56,10 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get('/', (req, res) =>{
+    res.render('index');
+})
+
 // --- Routes ---
 // Main routes
 app.use('/', mainRoutes);

@@ -12,4 +12,10 @@ router.get('/add-bank', controller.budget);
 // GET /budget
 router.get('/budget', controller.bankaccount);
 
+// GET /financials/resources
+router.get('/resources', controller.resources);
+
+// GET /financials/resources/:id
+router.get('/resources/:id', controller.resourceDetail);
+
 module.exports = router;
