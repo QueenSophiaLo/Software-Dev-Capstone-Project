@@ -21,6 +21,9 @@
     </li>
 
     <!-- Financial Services Dropdown -->
+    
+    <!--if a user is logged in-->
+    <%if(user){%>
     <li class="nav-item dropdown">
       <a class="nav-link" href="#">Financial Services &#9662;</a>
       <ul class="dropdown-menu">
@@ -29,14 +32,15 @@
         <li><a class="dropdown-link" href="/financials/resources">Financial Resources</a></li>
       </ul>
     </li>
+    <%}%>
 
-    <!-- Other Links -->
+    <!--if a user is logged out-->
     <%if(!user){ %>
       <li class="nav-item"><a class="nav-link" href="/users/sign-up">Sign Up</a></li>
       <li class="nav-item"><a class="nav-link" href="/users/log-in">Log In</a></li>
     <%} 
     else{%>
-      <li class="nav-item"><a class="nav-link" href="/users/profile">Sign Up</a></li>
+      <li class="nav-item"><a class="nav-link" href="/users/profile">Profile</a></li>
       <li class="nav-item"><a class="nav-link" href="/users/logout">Log Out</a></li>
     <%}%>
   </ul>
@@ -55,5 +59,3 @@
       <%})
   } %>
 </div>
-
-

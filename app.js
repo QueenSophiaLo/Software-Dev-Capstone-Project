@@ -56,9 +56,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/', (req, res) =>{
-    res.render('index');
-})
 
 // --- Routes ---
 // Main routes
@@ -87,7 +84,5 @@ app.use((err, req, res, next) => {
   res.status(err.status);
   res.render('error', { error: err });
 });
-
-module.exports = app;
 
 module.exports = app;
