@@ -402,6 +402,22 @@ html, body {
   background-color: #ffffff;
 }
 
+/*
+  Centering the text and list items when the user is logged in
+.logged-in-center {
+    text-align: center; 
+    width: fit-content; 
+    margin-left: auto;  
+    margin-right: auto; 
+}*/
+
+/* Resetting list alignment 
+  (Optional: If your bullets are still aligned left, you might need this)
+.logged-in-center ul {
+    text-align: left; 
+    padding-left: 0;
+}*/ 
+
 .home-text {
   flex: 1; 
   display: flex;

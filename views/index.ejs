@@ -6,7 +6,7 @@
     <%- include('./partials/header.ejs'); %> <!--this includes all the imports and the navbar, leave the structure as is-->
 
 <main class="homepage">
-  <div class="home-text-area">
+<div class="home-text-area <%= user ? 'logged-in-center' : '' %>">
 <h1>Financial Insights Navigator</h1>
     <p>
       We can help you take control of your money by securely connecting your
@@ -18,10 +18,12 @@
       <li>Build and manage budgets</li>
       <li>Make smarter financial decisions</li>
     </ul>
+    <% if (!user) { %>
     <div class="home-buttons">
       <a href="/users/sign-up" class="home-btn start">Get Started</a>
       <a href="/users/log-in" class="home-btn login">Login</a>
     </div>
+    <% } %>
   </div>
 
   <div class="home-gif">
