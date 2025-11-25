@@ -240,7 +240,7 @@ describe('Validation Middleware Testing', () =>{
             expect(messages).toContain('Passwords do not match');
         })
 
-        it('Should reject short password: short password', async () =>{
+        it('Should reject short password and short confirm password: short password', async () =>{
             const req = {
                 body: {name: 'Joe', email: 'test@gmail.com', password: '123', confirmpassword: '123'},
                 get: jest.fn().mockReturnValue('/users/log-in'),
@@ -259,9 +259,10 @@ describe('Validation Middleware Testing', () =>{
     
             const messages = errors.array().map(e => e.msg)
             expect(messages).toContain('Password must be atleast 8 characters and at most 64 characters');
+            expect(messages).toContain('Confirm Password must be atleast 8 characters and at most 64 characters');
         })
 
-        it('Should reject long password: long password', async () =>{
+        it('Should reject long password and long confirm password: long password', async () =>{
             const req = {
                 body: {name: 'Joe', email: 'test@gmail.com', password: '123123123123123123123123123123123123123123123123123123123123123123123123123123123123', confirmpassword: '123123123123123123123123123123123123123123123123123123123123123123123123123123123123'},
                 get: jest.fn().mockReturnValue('/users/log-in'),
@@ -280,6 +281,7 @@ describe('Validation Middleware Testing', () =>{
     
             const messages = errors.array().map(e => e.msg)
             expect(messages).toContain('Password must be atleast 8 characters and at most 64 characters');
+            expect(messages).toContain('Confirm Password must be atleast 8 characters and at most 64 characters');
         })
 
         it('Should accept a valid login', async () =>{

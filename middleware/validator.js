@@ -4,7 +4,7 @@ const {validationResult} = require('express-validator');
 exports.validatorSignUp = [body('name', 'Name cannot be empty').notEmpty().trim().escape(),
     body('email', 'Email cannot be empty').notEmpty().bail().isEmail().withMessage('Email must be valid email address').trim().escape().normalizeEmail(),
     body('password', 'Password cannot be empty').notEmpty().bail().isLength({min: 8, max: 64}).withMessage('Password must be atleast 8 characters and at most 64 characters'),
-    body('confirmpassword').notEmpty().withMessage('Confirm Password cannot be empty').bail().custom((value, { req }) => {
+    body('confirmpassword').notEmpty().withMessage('Confirm Password cannot be empty').bail().isLength({min: 8, max: 64}).withMessage('Confirm Password must be atleast 8 characters and at most 64 characters').custom((value, { req }) => {
         if (req.body.password && value !== req.body.password) {
             throw new Error('Passwords do not match');
             }
