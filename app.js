@@ -6,6 +6,7 @@ const methodOverride = require('method-override');
 const session = require('express-session');
 const flash = require('connect-flash');
 const MongoStore = require('connect-mongo');
+const nodemailer = require('nodemailer');
 
 // Routers
 const mainRoutes = require('./routes/mainRoutes.js');
