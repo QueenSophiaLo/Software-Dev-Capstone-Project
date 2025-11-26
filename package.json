@@ -18,6 +18,7 @@
     "test": "NODE_ENV=test jest"
   },
   "dependencies": {
+    "@maxint/teller": "^0.2.0",
     "auth": "^1.2.3",
     "bcryptjs": "^3.0.2",
     "connect-flash": "^0.1.1",
