@@ -1,0 +1,25 @@
+<%- include('../partials/header.ejs')%>
+
+<main>
+    <div class="container">
+        <% if (successMessages && successMessages.length > 0) { %>
+            <div class="alert alert-success"><%= successMessages %></div>
+        <% } %>
+        <% if (errorMessages && errorMessages.length > 0) { %>
+            <div class="alert alert-danger"><%= errorMessages %></div>
+        <% } %>
+
+        <form action="/users/forgot-email" method="POST" class="newuser-form">
+            <h2>Password Recovery</h2>
+            <p>Enter your email address to find your account.</p>
+            
+            <label for="email">Email</label><br>
+            <input type="email" id="email" name="email" required><br><br>
+            
+            <button type="submit" class="reg-button">Next</button><br>
+            <p>Return to <a href="/users/log-in">Login</a></p>
+        </form>
+    </div>
+</main>
+
+<%- include('../partials/footer.ejs')%>

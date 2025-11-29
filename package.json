@@ -15,7 +15,7 @@
   "type": "commonjs",
   "main": "app.js",
   "scripts": {
-    "test": "NODE_ENV=test jest"
+    "test": "cross-env NODE_ENV=test jest"
   },
   "dependencies": {
     "auth": "^1.2.3",
