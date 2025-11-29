@@ -595,6 +595,13 @@ h2, h3, h4 {
 .status.overbudget {
   color: #d64545;
   font-weight: bold;
+  text-transform: uppercase;
+}
+
+.status.ok {
+  color: #52e147;
+  font-weight: bold;
+  text-transform: uppercase;
 }
 
 /* Tables */

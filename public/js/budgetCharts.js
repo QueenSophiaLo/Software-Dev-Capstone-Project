@@ -1,37 +1,44 @@
-// Income Chart
-const incomeCtx = document.getElementById('incomeChart');
-if (incomeCtx) {
-  new Chart(incomeCtx, {
-    type: 'pie',
-    data: {
-      labels: ['Misc. Income', 'Account Transfer', 'Wages/Salary'],
-      datasets: [{
-        data: [1319.02, 1100.00, 180.00],
-        backgroundColor: ['#7ed957', '#6bc96b', '#459c45']
-      }]
-    },
-    options: {
-      plugins: { legend: { position: 'bottom' } }
-    }
-  });
+// -------- Income Chart --------
+if (typeof incomeLabels !== "undefined" && typeof incomeValues !== "undefined") {
+  const incomeCtx = document.getElementById('incomeChart');
+  if (incomeCtx) {
+    new Chart(incomeCtx, {
+      type: 'pie',
+      data: {
+        labels: incomeLabels,
+        datasets: [{
+          data: incomeValues,
+          backgroundColor: ['#4CAF50', '#8BC34A', '#CDDC39']
+        }]
+      },
+      options: {
+        plugins: { legend: { position: 'bottom' } }
+      }
+    });
+  }
 }
 
-// Expense Chart
-const expenseCtx = document.getElementById('expenseChart');
-if (expenseCtx) {
-  new Chart(expenseCtx, {
-    type: 'pie',
-    data: {
-      labels: ['Home', 'Food/Drink', 'Education', 'Shopping', 'Subscriptions'],
-      datasets: [{
-        data: [3898.24, 634.59, 839.11, 384.12, 99.54],
-        backgroundColor: ['#d45a5a', '#e88c6a', '#f0b76a', '#f4d36a', '#f7eb8a']
-      }]
-    },
-    options: {
-      plugins: { legend: { position: 'bottom' } }
-    }
-  });
+// -------- Expense Chart --------
+if (typeof expenseByCategory !== "undefined") {
+  const expenseCtx = document.getElementById('expenseChart');
+  if (expenseCtx) {
+    new Chart(expenseCtx, {
+      type: 'pie',
+      data: {
+        labels: Object.keys(expenseByCategory),
+        datasets: [{
+          data: Object.values(expenseByCategory),
+          backgroundColor: [
+            "#d45a5a", "#e88c6a", "#f0b76a", "#f4d36a", "#f7eb8a",
+            "#d97b7b", "#c45555"
+          ]
+        }]
+      },
+      options: {
+        plugins: { legend: { position: 'bottom' } }
+      }
+    });
+  }
 }
 
 // Transactions table

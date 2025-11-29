@@ -13,24 +13,96 @@ exports.budget = (req, res) => {
 
 // Budget Overview Page
 exports.bankaccount = (req, res) => {
-    // Check for real DB data
-    FinancialData.findOne({userId: req.session.user})
+    FinancialData.findOne({ userId: req.session.user })
     .then(data => {
-        // Even if data is null, WE STILL RENDER THE PAGE.
-        // We pass 'data' to the view. If it's null, the view (or client JS) 
-        // should default to the hardcoded mock data.
+        if (!data) {
+            req.flash("error", "No financial data found.");
+            return res.redirect("/");
+        }
+
+        const accounts = data.accounts 
+        const balances = data.balances 
+
+        const recentTransactions = (data.transactions[0]).slice(0, 30);
+
+        const normalizedTxns = recentTransactions.map(t => {
+            const rawAmount = parseFloat(t.amount);
+            const incomingTypes = ["credit", "ach_in", "income", "deposit", "interest", "transfer_in", "zelle_in", "refund"];
+            const outgoingTypes = ["card_payment", "ach_out", "debit", "transfer_out", "zelle_out", "fee"];
+
+            let amountNum = rawAmount;
+
+            if (incomingTypes.includes(t.type)) {
+                amountNum = Math.abs(rawAmount);
+            } else if (outgoingTypes.includes(t.type)) {
+                amountNum = -Math.abs(rawAmount);
+            }
+
+            return {
+                id: t.id,
+                date: t.date,
+                description: t.description,
+                category: t.details?.category || "Other",
+                type: t.type,
+                amount: amountNum
+            };
+        });
+
+        normalizedTxns.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        const balanceEntries = (data.balances).map(b => ({
+            id: `balance_${b.account_id}`,
+            date: new Date().toISOString(),
+            description: `Balance (${b.account_id.slice(-4)})`,
+            category: "Balance",
+            type: "balance",
+            amount: Number(b.available)
+        }))
         
-        res.render('financials/budget', { 
-            // If data exists, pass it. If not, pass null.
-            financeData: data || null 
+
+        const normalizedWithBalance = [...normalizedTxns, ...balanceEntries];
+
+        const incomeChart = balances.map(bal => {
+            const acc = accounts.find(a => a.id === bal.account_id);
+            return {
+                type: acc?.type,
+                amount: Number(bal.available)
+            };
+        });
+
+        const totalIncome = normalizedWithBalance
+            .filter(t => t.amount > 0)
+            .reduce((sum, t) => sum + t.amount, 0);
+
+        const totalExpense = normalizedWithBalance
+            .filter(t => t.amount < 0)
+            .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+        const targetExpense = 1000;
+
+        const budgetSummary = {
+            status: targetExpense < totalExpense ? "overbudget" : "ok",
+            targetExpenditure: targetExpense,
+            totalExpense,
+            totalIncome,
+            surplusDeficit: totalIncome - totalExpense
+        };
+
+        res.render("financials/budget", {
+            accounts,
+            balances,
+            recentTransactions,
+            budgetSummary,
+            incomeChart
         });
     })
     .catch(err => {
         console.error(err);
-        req.flash('error', 'Server error retrieving budget data.');
-        res.redirect('/');
+        req.flash("error", "Server error retrieving budget data.");
+        res.redirect("/");
     });
 };
+
 
 // Show all resources (with search and filter)
 // Called by /financials/resources
