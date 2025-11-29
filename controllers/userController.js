@@ -170,7 +170,7 @@ exports.postForgotEmail = async (req, res, next) => {
             return res.redirect('/users/forgot');
         }
 
-        // ✅ 1. Define the Translation Map
+        // 1. Define the Translation Map
         // This MUST match the 'value' attributes in your <select> tags
         const questionMap = {
             'pet': 'What was the name of your first pet?',
@@ -184,7 +184,7 @@ exports.postForgotEmail = async (req, res, next) => {
             'sport': 'What is your favorite sport?'
         };
 
-        // ✅ 2. Translate the codes to full text
+        // 2. Translate the codes to full text
         // We use || user.securityQuestionX as a fallback in case the code isn't found
         const q1Text = questionMap[user.securityQuestion1] || user.securityQuestion1;
         const q2Text = questionMap[user.securityQuestion2] || user.securityQuestion2;
@@ -196,7 +196,7 @@ exports.postForgotEmail = async (req, res, next) => {
             email: user.email
         };
 
-        // ✅ 3. Pass the TRANSLATED text to the view
+        // 3. Pass the TRANSLATED text to the view
         res.render('./users/security-check', { 
             questions: [q1Text, q2Text, q3Text],
             email: user.email

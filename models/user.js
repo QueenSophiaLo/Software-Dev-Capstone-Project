@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const bcrypt = require('bcryptjs'); // ✅ Fixed variable name to 'bcrypt'
+const bcrypt = require('bcryptjs');
 
 const userSchema = new Schema({
     name: { type: String, required: [true, 'Name is required'] },
     email: { type: String, required: [true, 'Email is required'], unique: true },
     password: { type: String, required: [true, 'Password is required'] },
     
-    // ✅ NEW: Three sets of security questions
+    // Three sets of security questions
     securityQuestion1: { type: String, trim: true },
     securityAnswer1: { type: String, trim: true },
     
@@ -26,7 +26,7 @@ userSchema.pre('save', function(next) {
         user.password = bcrypt.hashSync(user.password, 10);
     }
 
-    // ✅ Hash ALL 3 Security Answers if modified
+    // Hash ALL 3 Security Answers if modified
     if (user.isModified('securityAnswer1') && user.securityAnswer1) {
         user.securityAnswer1 = bcrypt.hashSync(user.securityAnswer1, 10);
     }
@@ -44,7 +44,7 @@ userSchema.methods.comparePassword = function(loginPassword) {
     return bcrypt.compare(loginPassword, this.password);
 };
 
-// ✅ NEW: Helper to compare a specific answer (1, 2, or 3)
+// Helper to compare a specific answer (1, 2, or 3)
 userSchema.methods.compareSecurityAnswer = function(submittedAnswer, questionNumber) {
     const storedHash = this[`securityAnswer${questionNumber}`];
     if (!storedHash) return false;
