@@ -55,8 +55,6 @@ exports.handleCallBack = async (req, res) => {
             transacts.push(transaction)
             return account;
         }));
-        console.log("REQ.USER:", req.session.user);
-        console.log("ABOUT TO SAVE TO DB");
         const finData = new FinancialData({
             userId: req.session.user,
             access_token,
@@ -67,7 +65,6 @@ exports.handleCallBack = async (req, res) => {
         })
 
         await finData.save()
-        console.log("SAVED!");
 
         req.flash('success', 'Successfully saved finance data')
         res.redirect('/financials/budget'); 

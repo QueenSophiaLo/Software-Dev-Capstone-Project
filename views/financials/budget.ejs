@@ -5,7 +5,6 @@
   <!-- Header -->
   <%- include('../partials/header.ejs'); %>
 </head>
-
 <body>
 <div class="budget-container">
   <h2>Budget Overview</h2>
@@ -22,39 +21,83 @@
   </div>
 
   <div class="summary-section">
-    <h3>Status: <span class="status overbudget">OVERBUDGET</span></h3>
-    <p>Target Expenditure: $1,000.00</p>
-    <p>Total Expense: $5,755.60</p>
+    <h3>Status: 
+      <span class="status <%= budgetSummary.status %>">
+        <%= budgetSummary.status %>
+      </span></h3>
+    <p>Target Expenditure: <%= budgetSummary.targetExpenditure.toFixed(2) %></p>
+    <p>Total Expense: <%= budgetSummary.totalExpense.toFixed(2) %></p>
 
     <h4>Budget Breakdown</h4>
-    <p>Total Income: $2,599.02</p>
-    <p>Total Expense: $5,755.60</p>
-    <p>FIN SURPLUS (DEFICIT): <strong>($3,156.58)</strong></p>
+    <p>Total Income: <%= budgetSummary.totalIncome.toFixed(2) %></p>
+    <p>Total Expense: <%= budgetSummary.totalExpense.toFixed(2) %></p>
+    <p>FIN SURPLUS (DEFICIT): <strong><%= budgetSummary.surplusDeficit.toFixed(2) %></strong></p>
   </div>
 </div>
 
   <div class="notes-section">
     <h3>Notes</h3>
-    <p>Unusually high expenditure due to double rent payment and one-time textbook/tuition fees.</p>
+    <p>
+    <% 
+      const status = budgetSummary.status;
+    
+      if (status === 'ok') { 
+    %>
+        Expenditure under budget
+    <% 
+      } else { 
+    %>
+        Unusually high expenditure
+    <% 
+      } 
+    %>
+    </p>
   </div>
 
   <div class="transactions-section">
     <h3>Recent Transactions</h3>
-    <table id="transactionTable">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Description</th>
-          <th>Amount</th>
-          <th>Subcategory</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
+    <table class="transactionTable">
+      <tr>
+        <th>Date</th><th>Description</th><th>Amount</th><th>Category</th>
+      </tr>
+    
+      <% recentTransactions.forEach(t => { %>
+      <tr>
+        <td><%= t.date %></td>
+        <td><%= t.description %></td>
+        <td>
+          <% if (t.amount < 0) { %>
+            -$<%= Math.abs(Number(t.amount)).toFixed(2) %>
+          <% } else { %>
+            $<%= Number(t.amount).toFixed(2) %>
+          <% } %>
+        </td>
+        <td><%= t.details?.category || "—" %></td>
+      </tr>
+      <% }) %>
     </table>
   </div>
 </div>
 
   <!-- Scripts -->
+  <script>
+
+    const incomeChart = <%- JSON.stringify(incomeChart) %>;
+
+    const incomeLabels = incomeChart.map(a => a.type);
+    const incomeValues = incomeChart.map(a => a.amount);
+
+    const chartData = <%- JSON.stringify(recentTransactions) %>
+    .slice(0, 30)
+
+    const expenseDataFromServer = chartData.filter(t => t.amount < 0);
+
+    const expenseByCategory = {};
+    expenseDataFromServer.forEach(t => {
+      const cat = t.category || t.details?.category || "Other";
+      expenseByCategory[cat] = (expenseByCategory[cat] || 0) + Math.abs(t.amount);
+    });
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="/js/budgetCharts.js"></script>
 
