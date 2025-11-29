@@ -11,6 +11,7 @@ const MongoStore = require('connect-mongo');
 const mainRoutes = require('./routes/mainRoutes.js');
 const userRoutes = require('./routes/userRoutes.js');
 const budgetRoutes = require('./routes/budgetRoutes.js');
+const newsRoutes = require('./routes/newsRoutes.js');
 
 const app = express();
 const port = 3000;
@@ -67,6 +68,9 @@ app.use('/users', userRoutes);
 
 // Budget routes
 app.use('/financials', budgetRoutes);
+
+// News routes
+app.use('/financials/news', newsRoutes);
 
 // --- 404 Handler ---
 app.use((req, res, next) => {

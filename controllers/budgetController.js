@@ -13,17 +13,21 @@ exports.budget = (req, res) => {
 
 // Budget Overview Page
 exports.bankaccount = (req, res) => {
-    FinancialData.findOne({userId: req.user._id})
-    .then(data =>{
-        if(!data){
-            req.flash('error', 'No financial data found')
-            return res.redirect("/")
-        }
-        res.render('/financials/budget')
+    // Check for real DB data
+    FinancialData.findOne({userId: req.session.user})
+    .then(data => {
+        // Even if data is null, WE STILL RENDER THE PAGE.
+        // We pass 'data' to the view. If it's null, the view (or client JS) 
+        // should default to the hardcoded mock data.
+        
+        res.render('financials/budget', { 
+            // If data exists, pass it. If not, pass null.
+            financeData: data || null 
+        });
     })
     .catch(err => {
         console.error(err);
-        req.flash('error', 'Server error.');
+        req.flash('error', 'Server error retrieving budget data.');
         res.redirect('/');
     });
 };

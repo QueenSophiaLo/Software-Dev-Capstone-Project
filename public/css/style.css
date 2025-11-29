@@ -644,3 +644,41 @@ table tbody tr:hover {
     padding: 10px;
   }
 }
+
+/* === News Page === */
+.resource-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    align-items: stretch; /* Ensures cards in the same row are equal height */
+}
+
+/* Make the card a flex container so we can control vertical spacing */
+.resource-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    overflow: hidden;
+    /* NEW: flex column layout */
+    display: flex;
+    flex-direction: column;
+}
+
+/* THE KEY IMAGE FIX */
+.resource-card img {
+    width: 100%;          /* Full width of the card */
+    height: 200px;        /* A FIXED height for all images. Adjust as you like. */
+    object-fit: cover;    /* This crops the image to fit the box without distortion */
+    object-position: center; /* Centers the image within the cropped area */
+    border-bottom: 1px solid #f0f0f0; /* Optional: adds a subtle line under image */
+}
+
+/* Ensure content area fills remaining space */
+.resource-card-content {
+    padding: 15px;
+    flex-grow: 1; /* This makes cards align better if text lengths vary greatly */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}

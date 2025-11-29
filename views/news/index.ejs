@@ -1,0 +1,43 @@
+<%- include('../partials/header.ejs') %>
+
+<main class="container" style="padding: 20px;">
+    <h1>Financial News</h1>
+
+    <div class="errorcontent">
+        <% if (errorMessages && errorMessages.length > 0) { %>
+            <div class="error"><%= errorMessages %></div>
+        <% } %>
+    </div>
+
+    <div class="resource-filters" style="margin: 20px 0;">
+        <a href="/financials/news?category=business" class="filter-btn <%= currentCategory === 'business' ? 'active' : '' %>">Stocks/Business</a>
+        <a href="/financials/news?category=real_estate" class="filter-btn <%= currentCategory === 'real_estate' ? 'active' : '' %>">Real Estate</a>
+        <a href="/financials/news?category=crypto" class="filter-btn <%= currentCategory === 'crypto' ? 'active' : '' %>">Crypto</a>
+        <a href="/financials/news?category=<%= currentCategory %>" class="filter-btn" style="background: #2fbd08; color: white;">Refresh <i class="fas fa-sync"></i></a>
+    </div>
+
+    <div class="resource-grid">
+        <% if (articles && articles.length > 0) { %>
+            <% articles.forEach(article => { %>
+                <% if (article.urlToImage && article.description) { %>
+                    <div class="resource-card">
+                        <img src="<%= article.urlToImage %>" alt="News Image">
+                        <div class="resource-card-content">
+                            <small style="color: #666;"><%= article.source.name %></small>
+                            <h3><%= article.title %></h3>
+                            <p><%= article.description.substring(0, 100) %>...</p>
+
+                            <a href="/financials/news/read?title=<%= encodeURIComponent(article.title) %>&source=<%= encodeURIComponent(article.source.name) %>&image=<%= encodeURIComponent(article.urlToImage) %>&content=<%= encodeURIComponent(article.content || article.description) %>&url=<%= encodeURIComponent(article.url) %>">
+                                Read Article &raquo;
+                            </a>
+                        </div>
+                    </div>
+                <% } %>
+            <% }) %>
+        <% } else { %>
+            <p>No news available. Please check filters or API configuration.</p>
+        <% } %>
+    </div>
+</main>
+
+<%- include('../partials/footer.ejs') %>
