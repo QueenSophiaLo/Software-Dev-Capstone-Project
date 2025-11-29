@@ -8,6 +8,10 @@ exports.signup = (req, res) =>{
     return res.render('./users/new')
 }
 
+exports.inbox = (req, res) =>{
+    return res.render('./users/inbox')
+}
+
 exports.loginUser = (req, res, next)=>{
     let email = req.body.email;
     let password = req.body.password
