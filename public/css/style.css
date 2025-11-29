@@ -689,3 +689,108 @@ table tbody tr:hover {
     flex-direction: column;
     justify-content: space-between;
 }
+
+
+/* === Mini Dashboard Widget === */
+
+.mini-dashboard-widget {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12); /* Soft shadow for depth */
+    border: 1px solid #e0e0e0;
+    width: 100%;
+    max-width: 380px; /* Keep it rectangular-ish and compact */
+    margin: 20px auto; /* Centers it if the parent text-align is center */
+    padding: 0;
+    overflow: hidden;
+    text-align: left; /* Keep internal text aligned left/natural */
+}
+
+.widget-header {
+    background-color: #f8f9fa;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.widget-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+/* Status Badge */
+.widget-status {
+    font-size: 0.8rem;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+}
+
+.status-deficit {
+    background-color: #ffeaea;
+    color: #d64545;
+}
+
+/* Main Net Position Area */
+.widget-main-stat {
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.85rem;
+    color: #777;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    display: block;
+}
+
+.stat-value.negative { color: #d64545; } /* Red */
+.stat-value.income { color: #2fbd08; font-size: 1.2rem; } /* Green */
+.stat-value.expense { color: #d64545; font-size: 1.2rem; } /* Red */
+
+/* Income/Expense Row */
+.widget-row {
+    display: flex;
+    background-color: #fff;
+}
+
+.widget-col {
+    flex: 1;
+    padding: 15px;
+    text-align: center;
+}
+
+.widget-col.border-left {
+    border-left: 1px solid #eee;
+}
+
+/* Footer Link */
+.widget-footer {
+    background-color: #f1f3f5;
+    padding: 10px;
+    text-align: center;
+}
+
+.widget-footer a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.widget-footer a:hover {
+    text-decoration: underline;
+}
