@@ -23,7 +23,7 @@ exports.bankaccount = (req, res) => {
         const accounts = data.accounts 
         const balances = data.balances 
 
-        const recentTransactions = (data.transactions[0] || []).slice(0, 30);
+        const recentTransactions = (data.transactions[0]).slice(0, 30);
 
         const normalizedTxns = recentTransactions.map(t => {
             const rawAmount = parseFloat(t.amount);
@@ -50,14 +50,15 @@ exports.bankaccount = (req, res) => {
 
         normalizedTxns.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        const balanceEntries = (data.balances || []).map(b => ({
+        const balanceEntries = (data.balances).map(b => ({
             id: `balance_${b.account_id}`,
             date: new Date().toISOString(),
             description: `Balance (${b.account_id.slice(-4)})`,
             category: "Balance",
             type: "balance",
             amount: Number(b.available)
-        }));
+        }))
+        
 
         const normalizedWithBalance = [...normalizedTxns, ...balanceEntries];
 
