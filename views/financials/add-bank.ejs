@@ -1,13 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Bank Account</title>
     <%- include('../partials/header.ejs') %>
-
+</head>
+<body>
     <h1>Add Bank Account</h1>
-    <p>This is the add bank account page.</p>  
 
+    <button id="connect-bank-btn">Connect Bank</button>
 
+    <script src="https://cdn.teller.io/connect/connect.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const button = document.getElementById("connect-bank-btn");
+            button.addEventListener("click", () => {
+                TellerConnect.setup({
+                    applicationId: "<%= applicationId %>",
+                    environment: "sandbox",
+                    onSuccess: async function(data) {
+                        const access_token = data.accessToken;
+                        await fetch("/financials/add-bank", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ 
+                                access_token
+                            })
+                        })
+                        console.log(data);
+                    }
+                }).open();
+            });
+        });
+    </script>
+        
+        
 <!-- Footer -->
     <%- include('../partials/footer.ejs')%>
+</body>
 </html>

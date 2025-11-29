@@ -1,5 +1,6 @@
 const express = require('express');
 const controller = require('../controllers/budgetController');
+const tellerController = require('../controllers/tellerDataController')
 
 const router = express.Router();
 
@@ -8,6 +9,8 @@ router.get('/', controller.index);
 
 // GET /add-bank
 router.get('/add-bank', controller.budget);
+
+router.post('/add-bank', tellerController.handleCallBack);
 
 // GET /budget
 router.get('/budget', controller.bankaccount);

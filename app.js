@@ -6,7 +6,6 @@ const methodOverride = require('method-override');
 const session = require('express-session');
 const flash = require('connect-flash');
 const MongoStore = require('connect-mongo');
-const nodemailer = require('nodemailer');
 
 // Routers
 const mainRoutes = require('./routes/mainRoutes.js');
@@ -35,6 +34,7 @@ if (process.env.NODE_ENV !== 'test') {
 
 // --- Middleware ---
 app.use(express.static('public'));
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('tiny'));
 app.use(methodOverride('_method'));

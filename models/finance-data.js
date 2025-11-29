@@ -1,28 +1,14 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const transactionSchema = new Schema({
-    date: {type: String},
-    description: {type: String},
-    amount: {type: Number},
-    type: {type: String}
-})
-
-const accountSchema = new Schema({
-    tellerAccId: {type: String},
-    name: {type: String},
-    type: {type: String},
-    balance: {type: Number},
-    currency: {type: String},
-    routingNumber: {type: String},
-    accountNumber: {type: String},
-    transactions: [transactionSchema],
-})
-
-const financeDataSchema = new Schema ({
+const financeData = new Schema ({
     userId: {type: Schema.Types.ObjectId, ref: 'User'},
-    accounts: [accountSchema]
+    access_token: {type: String, require: true},
+    accounts: {type: Array, default: []},
+    balances: {type: Array, default: []},
+    transactions: {type: Array, default: []},
+    lastUpdated: { type: Date, default: Date.now}
 }) 
 
 
-module.exports = mongoose.model('FinanceData', financeDataSchema);
+module.exports = mongoose.model('finance-data', financeData);

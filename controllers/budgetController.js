@@ -1,4 +1,5 @@
 const Resource  = require('../models/resource');
+const FinancialData = require('../models/finance-data')
 
 // Dashboard / Home
 exports.index = (req, res) => {
@@ -7,12 +8,24 @@ exports.index = (req, res) => {
 
 // Add Bank Account Page
 exports.budget = (req, res) => {
-  res.render('financials/add-bank');
+  res.render('financials/add-bank', { applicationId: process.env.Teller_app_id });
 };
 
 // Budget Overview Page
 exports.bankaccount = (req, res) => {
-  res.render('financials/budget');
+    FinancialData.findOne({userId: req.user._id})
+    .then(data =>{
+        if(!data){
+            req.flash('error', 'No financial data found')
+            return res.redirect("/")
+        }
+        res.render('/financials/budget')
+    })
+    .catch(err => {
+        console.error(err);
+        req.flash('error', 'Server error.');
+        res.redirect('/');
+    });
 };
 
 // Show all resources (with search and filter)
