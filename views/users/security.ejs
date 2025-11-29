@@ -1,0 +1,33 @@
+<!-- views/users/security.ejs -->
+<%- include('../partials/header.ejs')%>
+
+<main>
+    <div class="container">
+        <% if (successMessages && successMessages.length > 0) { %>
+            <div class="alert alert-success"><%= successMessages %></div>
+        <% } %>
+        <% if (errorMessages && errorMessages.length > 0) { %>
+            <div class="alert alert-danger"><%= errorMessages %></div>
+        <% } %>
+
+        <form action="/users/security-setup" method="POST" class="newuser-form">
+            <h2>Set Up Security Question</h2>
+            <p>This question will be used to recover your password if you forget it.</p>
+            
+            <label for="question">Choose a Question</label><br>
+            <select id="question" name="question" required>
+                <option value="" disabled selected>Select your question</option>
+                <option value="pet">What was the name of your first pet?</option>
+                <option value="city">In what city were you born?</option>
+                <option value="mother">What is your mother's maiden name?</option>
+            </select><br><br>
+            
+            <label for="answer">Your Answer</label><br>
+            <input type="text" id="answer" name="answer" required><br><br>
+            
+            <button type="submit" class="reg-button">Save Security Question</button>
+        </form>
+    </div>
+</main>
+
+<%- include('../partials/footer.ejs')%>

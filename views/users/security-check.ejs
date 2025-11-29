@@ -1,0 +1,31 @@
+<%- include('../partials/header.ejs')%>
+
+<main>
+    <div class="container">
+        <% if (errorMessages && errorMessages.length > 0) { %>
+            <div class="alert alert-danger"><%= errorMessages %></div>
+        <% } %>
+
+        <form action="/users/reset" method="POST" class="newuser-form">
+            <h2>Security Verification</h2>
+            <p>Please answer all three questions to reset your password.</p>
+            
+            <label>Q1: <%= questions[0] %></label><br>
+            <input type="text" name="answer1" required><br><br>
+
+            <label>Q2: <%= questions[1] %></label><br>
+            <input type="text" name="answer2" required><br><br>
+
+            <label>Q3: <%= questions[2] %></label><br>
+            <input type="text" name="answer3" required><br><br>
+            
+            <hr>
+            <label for="newPassword">New Password</label><br>
+            <input type="password" name="newPassword" required><br><br>
+            
+            <button type="submit" class="reg-button">Reset Password</button>
+        </form>
+    </div>
+</main>
+
+<%- include('../partials/footer.ejs')%>
