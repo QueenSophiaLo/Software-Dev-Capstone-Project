@@ -263,11 +263,32 @@ exports.getProfile = async (req, res, next) => {
         }
 
         // Render the profile view, passing the user object
-        res.render('./users/profile', { user: user });
+        res.render('./users/profile', { user: user, activeTab: 'main',
+            tabView: './tabs/main.ejs' });
 
     } catch (error) {
         next(error);
     }
+};
+
+exports.getSandbox = async (req, res) => {
+    const user = await model.findById(req.session.user);
+
+    res.render('./users/profile', {
+        user,
+        activeTab: 'sandbox',
+        tabView: './tabs/sandbox'
+    });
+};
+
+exports.getSecurity = async (req, res) => {
+    const user = await model.findById(req.session.user);
+
+    res.render('./users/profile', {
+        user,
+        activeTab: 'sandbox',
+        tabView: './tabs/securityQuestions'
+    });
 };
 
 /**

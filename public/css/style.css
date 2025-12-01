@@ -794,3 +794,74 @@ table tbody tr:hover {
 .widget-footer a:hover {
     text-decoration: underline;
 }
+
+/* === Profile Page Layout === */
+.profile-container {
+  display: flex;
+  gap: 30px;
+  width: 90%;
+  margin: 30px auto;
+  min-height: 70vh;
+}
+
+/* === Sidebar === */
+.profile-sidebar {
+  width: 220px;
+  background: #f8f9fa;
+  padding: 20px 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  height: fit-content;
+  position: sticky;
+  top: 120px;
+}
+
+.profile-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.profile-sidebar li a {
+  display: block;
+  padding: 14px 25px;
+  text-decoration: none;
+  color: #333;
+  font-size: 1rem;
+  transition: all 0.25s ease;
+  border-left: 4px solid transparent;
+}
+
+.profile-sidebar li a:hover {
+  background: #e6f0ff;
+  border-left: 4px solid #007bff;
+  color: #007bff;
+}
+
+.profile-sidebar li a.active {
+  background: #d9e9ff;
+  color: #0056c7;
+  font-weight: bold;
+  border-left: 4px solid #0056c7;
+}
+
+/* === Content Area === */
+.profile-content {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  animation: fadeSlideIn 0.35s ease;
+}
+
+@keyframes fadeSlideIn {
+  from {
+      opacity: 0;
+      transform: translateY(8px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}

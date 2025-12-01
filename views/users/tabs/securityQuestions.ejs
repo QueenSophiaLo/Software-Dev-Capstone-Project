@@ -1,0 +1,49 @@
+<form action="/users/profile/security" method="POST" class="profile-form">      
+    <h3>Personal Details</h3>
+    
+    <label for="name">Name</label><br>
+    <input type="text" id="name" name="name" value="<%= user.name %>" required><br><br>
+    
+    <label for="email">Email</label><br>
+    <input type="email" id="email" name="email" value="<%= user.email %>" required><br><br>
+
+    <hr>
+    <h3>Security Questions</h3>
+    <p>To ensure account safety, please set up all three questions.</p>
+
+    <h4>Question 1</h4>
+    <label for="securityQuestion1">Choose Question</label><br>
+    <select id="securityQuestion1" name="securityQuestion1">
+        <option value="" disabled <%= !user.securityQuestion1 ? 'selected' : '' %>>Select Question 1</option>
+        <option value="pet" <%= user.securityQuestion1 === 'pet' ? 'selected' : '' %>>What was the name of your first pet?</option>
+        <option value="city" <%= user.securityQuestion1 === 'city' ? 'selected' : '' %>>In what city were you born?</option>
+        <option value="mother" <%= user.securityQuestion1 === 'mother' ? 'selected' : '' %>>What is your mother's maiden name?</option>
+    </select><br>
+    <label for="securityAnswer1">Answer</label><br>
+    <input type="text" id="securityAnswer1" name="securityAnswer1" placeholder="<%= user.securityQuestion1 ? 'Update Answer' : 'Set Answer' %>"><br><br>
+
+    <h4>Question 2</h4>
+    <label for="securityQuestion2">Choose Question</label><br>
+    <select id="securityQuestion2" name="securityQuestion2">
+        <option value="" disabled <%= !user.securityQuestion2 ? 'selected' : '' %>>Select Question 2</option>
+        <option value="school" <%= user.securityQuestion2 === 'school' ? 'selected' : '' %>>What was the name of your first school?</option>
+        <option value="car" <%= user.securityQuestion2 === 'car' ? 'selected' : '' %>>What was the make of your first car?</option>
+        <option value="food" <%= user.securityQuestion2 === 'food' ? 'selected' : '' %>>What is your favorite food?</option>
+    </select><br>
+    <label for="securityAnswer2">Answer</label><br>
+    <input type="text" id="securityAnswer2" name="securityAnswer2" placeholder="<%= user.securityQuestion2 ? 'Update Answer' : 'Set Answer' %>"><br><br>
+
+    <h4>Question 3</h4>
+    <label for="securityQuestion3">Choose Question</label><br>
+    <select id="securityQuestion3" name="securityQuestion3">
+        <option value="" disabled <%= !user.securityQuestion3 ? 'selected' : '' %>>Select Question 3</option>
+        <option value="hero" <%= user.securityQuestion3 === 'hero' ? 'selected' : '' %>>Who was your childhood hero?</option>
+        <option value="book" <%= user.securityQuestion3 === 'book' ? 'selected' : '' %>>What is your favorite book?</option>
+        <option value="sport" <%= user.securityQuestion3 === 'sport' ? 'selected' : '' %>>What is your favorite sport?</option>
+    </select><br>
+    <label for="securityAnswer3">Answer</label><br>
+    <input type="text" id="securityAnswer3" name="securityAnswer3" placeholder="<%= user.securityQuestion3 ? 'Update Answer' : 'Set Answer' %>"><br><br>
+
+    <button type="submit" class="reg-button">Save All Changes</button>
+</form>
+</div>

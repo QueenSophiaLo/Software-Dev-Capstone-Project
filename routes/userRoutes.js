@@ -22,8 +22,12 @@ router.post('/log-in', valid.validateLogin, valid.validateResults, controller.lo
 // GET /users/profile: Render the user's profile page
 router.get('/profile', auth.isLoggedIn, controller.getProfile);
 
+router.get('/profile/sandbox', auth.isLoggedIn, controller.getSandbox)
+
+router.get('/profile/securityQuestions', auth.isLoggedIn, controller.getSecurity)
+
 // POST /users/profile: Handle updates to user details and security questions
-router.post('/profile', auth.isLoggedIn, controller.updateProfile);
+router.post('/profile/security', auth.isLoggedIn, controller.updateProfile);
 
 //GET /logout: logout current user session
 router.get('/logout', auth.isLoggedIn, controller.logOut);
