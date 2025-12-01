@@ -11,9 +11,10 @@ router.get('/', controller.index);
 router.get('/add-bank', controller.budget);
 
 router.post('/add-bank', tellerController.handleCallBack);
-
 // GET /budget
 router.get('/budget', controller.bankaccount);
+
+router.post('/budget', controller.saveNotes);
 
 // GET /financials/resources
 router.get('/resources', controller.resources);

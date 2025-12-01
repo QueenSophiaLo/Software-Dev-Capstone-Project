@@ -61,6 +61,7 @@ exports.handleCallBack = async (req, res) => {
             accounts: userAccounts,
             balances: bals,
             transactions: transacts,
+            notes: "", 
             lastUpdated: new Date()
         })
 

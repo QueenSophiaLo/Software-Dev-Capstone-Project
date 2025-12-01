@@ -1,5 +1,6 @@
 const Resource  = require('../models/resource');
-const FinancialData = require('../models/finance-data')
+const FinancialData = require('../models/finance-data');
+const financeData = require('../models/finance-data');
 
 // Dashboard / Home
 exports.index = (req, res) => {
@@ -93,13 +94,37 @@ exports.bankaccount = (req, res) => {
             balances,
             recentTransactions,
             budgetSummary,
-            incomeChart
+            incomeChart,
+            notes: data.notes || ""
         });
     })
     .catch(err => {
         console.error(err);
         req.flash("error", "Server error retrieving budget data.");
         res.redirect("/");
+    });
+};
+
+exports.saveNotes = (req, res, next) => {
+    const userId = req.session.user;
+    const notes = req.body.notes;
+
+    FinancialData.findOneAndUpdate(
+        { userId: userId },
+        { notes: notes },
+        { upsert: false, new: true }
+    )
+    .then(updated => {
+        if (!updated) {
+            req.flash("error", "Could not update notes.");
+            return res.redirect("/financial/budget");
+        }
+        return exports.bankaccount(req, res);
+    })
+    .catch(err => {
+        console.error(err);
+        req.flash("error", "Error saving notes.");
+        res.redirect("/financial/budget");
     });
 };
 

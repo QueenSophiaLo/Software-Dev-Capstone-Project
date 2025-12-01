@@ -37,15 +37,10 @@
 
   <div class="notes-section">
     <h3>Notes</h3>
-    <form action="/users/profile/sandbox" method="POST" class="note-form">
-      <textarea name="note" placeholder="Write a note..." required></textarea>
-      <button type="submit">Save Note</button>
+    <form action="/financials/budget" class ="note-form" method="POST">
+      <textarea name="notes" placeholder="Write notes..." required><%= notes %></textarea>
+      <button type="submit">Save Notes</button>
     </form>
-
-    <div class="notes-list">
-       
-        <p>No notes saved yet.</p>
-    </div>
   </div>
 
   <div class="transactions-section">
