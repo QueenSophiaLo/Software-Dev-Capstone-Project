@@ -865,3 +865,92 @@ table tbody tr:hover {
       transform: translateY(0);
   }
 }
+
+/* === Sandbox Tab Area === */
+.sandbox-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 25px;
+  width: 100%;
+}
+
+.sandbox-left {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.sandbox-card {
+  background: white;
+  padding: 22px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  animation: fadeSlideIn 0.35s ease;
+}
+
+.sandbox-card.big {
+  height: 100%;
+}
+
+.sandbox-form label {
+  display: block;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.sandbox-form input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-top: 5px;
+}
+
+.btn-primary {
+  margin-top: 15px;
+  padding: 10px 18px;
+  background: #0069ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: #0053d6;
+}
+
+.btn-delete {
+  background: #e44;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-delete:hover {
+  background: #c33;
+}
+
+.transaction-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.transaction-item {
+  display: flex;
+  justify-content: space-between;
+  background: #f7f7f7;
+  padding: 14px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.empty-text {
+  opacity: 0.7;
+  font-style: italic;
+}

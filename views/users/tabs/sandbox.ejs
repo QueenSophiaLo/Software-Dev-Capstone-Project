@@ -1,0 +1,76 @@
+<div class="sandbox-grid">
+
+    <div class="sandbox-left">
+
+        <div class="sandbox-card">
+            <h2>Monthly Income</h2>
+
+            <form action="/users/profile/sandbox" method="POST" class="sandbox-form">
+                <input type="hidden" name="action" value="updateIncome">
+
+                <label>Income Amount</label>
+                <input 
+                    type="number" 
+                    name="monthlyIncome" 
+                    value="<%= sandbox.monthlyIncome %>" 
+                    placeholder="Enter your monthly income"
+                    required
+                />
+
+                <button type="submit" class="btn-primary">Update Income</button>
+            </form>
+
+            <div class="summary-box">
+                <p><strong>Total Expenses:</strong> $<%= totalExpenses %></p>
+                <p><strong>Remaining Balance:</strong> $<%= remaining %></p>
+            </div>
+        </div>
+
+        <div class="sandbox-card">
+            <h2>Add Expense</h2>
+
+            <form action="/users/profile/sandbox" method="POST" class="sandbox-form">
+                <input type="hidden" name="action" value="addExpense">
+
+                <label>Description</label>
+                <input type="text" name="description" placeholder="Ex: Drinks tonight" required />
+
+                <label>Amount</label>
+                <input type="number" name="amount" placeholder="Ex: 45" required />
+
+                <button type="submit" class="btn-primary">Add Expense</button>
+            </form>
+        </div>
+
+    </div>
+
+    <div class="sandbox-right">
+        <div class="sandbox-card big">
+            <h2>Your Transactions</h2>
+
+            <% if (sandbox.expenses.length === 0) { %>
+                <p class="empty-text">No expenses added yet.</p>
+            <% } else { %>
+
+            <ul class="transaction-list">
+                <% sandbox.expenses.forEach(expense => { %>
+                    <li class="transaction-item">
+                        <div>
+                            <strong><%= expense.description %></strong><br>
+                            $<%= expense.amount %>
+                        </div>
+
+                        <form action="/users/profile/sandbox" method="POST">
+                            <input type="hidden" name="action" value="deleteExpense">
+                            <input type="hidden" name="expenseId" value="<%= expense._id %>">
+                            <button type="submit" class="btn-delete">Delete</button>
+                        </form>
+                    </li>
+                <% }) %>
+            </ul>
+
+            <% } %>
+        </div>
+    </div>
+
+</div>

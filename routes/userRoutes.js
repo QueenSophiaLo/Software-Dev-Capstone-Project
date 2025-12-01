@@ -1,5 +1,6 @@
 const express = require('express');
 const controller = require('../controllers/userController');
+const sandboxController = require('../controllers/sandboxController')
 const valid = require('../middleware/validator')
 const auth = require('../middleware/auth')
 const router = express.Router();
@@ -22,7 +23,9 @@ router.post('/log-in', valid.validateLogin, valid.validateResults, controller.lo
 // GET /users/profile: Render the user's profile page
 router.get('/profile', auth.isLoggedIn, controller.getProfile);
 
-router.get('/profile/sandbox', auth.isLoggedIn, controller.getSandbox)
+router.get('/profile/sandbox', auth.isLoggedIn, sandboxController.getSandbox)
+
+router.post('/profile/sandbox', sandboxController.handleActions);
 
 router.get('/profile/securityQuestions', auth.isLoggedIn, controller.getSecurity)
 

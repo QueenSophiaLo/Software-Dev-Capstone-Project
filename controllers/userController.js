@@ -271,16 +271,6 @@ exports.getProfile = async (req, res, next) => {
     }
 };
 
-exports.getSandbox = async (req, res) => {
-    const user = await model.findById(req.session.user);
-
-    res.render('./users/profile', {
-        user,
-        activeTab: 'sandbox',
-        tabView: './tabs/sandbox'
-    });
-};
-
 exports.getSecurity = async (req, res) => {
     const user = await model.findById(req.session.user);
 
