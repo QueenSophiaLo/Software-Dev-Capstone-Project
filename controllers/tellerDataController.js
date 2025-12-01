@@ -67,6 +67,10 @@ exports.handleCallBack = async (req, res) => {
 
         await finData.save()
 
+        const totalBalance = bals.reduce((sum, b) => sum + Number(b.available), 0);
+
+        await model.findByIdAndUpdate(req.session.user, { money: totalBalance });
+
         req.flash('success', 'Successfully saved finance data')
         res.redirect('/financials/budget'); 
     }
