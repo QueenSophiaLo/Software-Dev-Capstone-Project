@@ -37,21 +37,15 @@
 
   <div class="notes-section">
     <h3>Notes</h3>
-    <p>
-    <% 
-      const status = budgetSummary.status;
-    
-      if (status === 'ok') { 
-    %>
-        Expenditure under budget
-    <% 
-      } else { 
-    %>
-        Unusually high expenditure
-    <% 
-      } 
-    %>
-    </p>
+    <form action="/users/profile/sandbox" method="POST" class="note-form">
+      <textarea name="note" placeholder="Write a note..." required></textarea>
+      <button type="submit">Save Note</button>
+    </form>
+
+    <div class="notes-list">
+       
+        <p>No notes saved yet.</p>
+    </div>
   </div>
 
   <div class="transactions-section">
