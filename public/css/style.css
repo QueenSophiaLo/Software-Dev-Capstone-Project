@@ -954,3 +954,54 @@ table tbody tr:hover {
   opacity: 0.7;
   font-style: italic;
 }
+
+.add-bank-container {
+    max-width: 480px;
+    margin: 80px auto;
+    background: #fff;
+    padding: 40px 35px;
+    border-radius: 18px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    animation: fadeIn 0.4s ease;
+}
+
+.add-bank-container h1 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #111;
+}
+
+#connect-bank-btn {
+    display: inline-block;
+    margin-top: 20px;
+    background: #0069ff;
+    color: white;
+    font-size: 17px;
+    padding: 14px 22px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    width: 70%;
+    transition: 0.25s ease;
+    font-weight: 600;
+}
+
+#connect-bank-btn:hover {
+    background: #0054d4;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 105, 255, 0.3);
+}
+
+.subtext {
+    margin-top: 15px;
+    font-size: 14px;
+    opacity: 0.75;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
