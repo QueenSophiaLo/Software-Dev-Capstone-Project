@@ -1,42 +1,16 @@
 <h2>Welcome, <%= user.name %></h2>
-<<<<<<< Updated upstream
 
-<% if (typeof budgetSummary !== 'undefined' && budgetSummary) { %>
-    <h3>Total Income: $<%= budgetSummary.totalIncome.toFixed(2) %> USD</h3>
+<div class="dashboard-layout">
+    
+    <div class="widget">
+        <h3>Financial Summary (Current Period)</h3>
+        <hr>
 
-    <div class="dashboard-container">
-        <div class="mini-dashboard-widget">
+        <% if (typeof budgetSummary !== 'undefined' && budgetSummary && data) { %>
             <div class="widget-header">
-                <h3>Financial Summary</h3>
                 <span class="widget-status <%= budgetSummary.status === 'overbudget' ? 'status-deficit' : 'status-success' %>">
                     <%= budgetSummary.status %>
                 </span>
-=======
-
-<h3>You have $<%= budgetSummary ? budgetSummary.totalIncome.toFixed(2) : "0.00" %> USD</h3>
-
-<div class="dashboard-container">
-    
-    <div class="mini-dashboard-widget">
-        <div class="widget-header">
-            <h3>Financial Summary</h3>
-            <span class="widget-status <%= budgetSummary.status === 'overbudget' ? 'status-deficit' : 'status-ok' %>">
-                <%= budgetSummary.status %>
-            </span>
-        </div>
-        
-        <div class="widget-main-stat">
-            <span class="stat-label">Net Position</span>
-            <span class="stat-value <%= budgetSummary.surplusDeficit < 0 ? 'negative' : 'positive' %>">
-                $<%= budgetSummary.surplusDeficit.toFixed(2) %>
-            </span>
-        </div>
-    
-        <div class="widget-row">
-            <div class="widget-col">
-                <span class="stat-label">Total Income</span>
-                <span class="stat-value income"> $<%= budgetSummary.totalIncome.toFixed(2) %></span>
->>>>>>> Stashed changes
             </div>
             
             <div class="widget-main-stat">
@@ -56,37 +30,40 @@
                     <span class="stat-value expense">$<%= budgetSummary.totalExpense.toFixed(2) %></span>
                 </div>
             </div>
-        </div>
+        <% } else { %>
+            <p>Please <strong>Link a Bank Account</strong> to view your financial summary.</p>
+            <a href="/users/profile/linkBank" class="btn-primary">Link Bank Now</a>
+        <% } %>
     </div>
+    
+    <div class="widget target-savings-widget">
+        <h3>Set Savings Goal</h3>
+        <hr>
 
-<% } else { %>
-    <h3>Account Balance: $0.00</h3>
-    
-<<<<<<< Updated upstream
-    <div class="dashboard-container" style="text-align: center; padding: 40px; background: #f9f9f9; border-radius: 8px; border: 2px dashed #ddd;">
-        <p>You haven't linked any financial data yet.</p>
-        <p>Link a bank account to see your financial summary here.</p>
-        <br>
-        <a href="/financials/add-bank" class="reg-button">Link Bank Account</a>
-    </div>
-<% } %>
+        <form action="/users/profile" method="POST" class="add-target-form">
+            <% if (locals.csrfToken) { %>
+                <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
+            <% } %>
+            <input type="hidden" name="action" value="add">
+            
+            <label for="amount">Goal Amount ($):</label>
+            <input type="number" id="amount" name="amount" placeholder="e.g., 500.00" required step="0.01">
+            
+            <label for="category">Category:</label>
+            <select id="category" name="category" aria-label="Savings goal category">
+                <option value="general">General</option>
+                <option value="vacation">Vacation</option>
+                <option value="emergency">Emergency</option>
+                <option value="car">Car</option>
+                <option value="house">House</option>
+            </select>
+            
+            <button type="submit" class="reg-button">Set New Goal</button>
+        </form>
 
-<hr>
-<form action="/users/profile" method="POST" class="profile-form">
-    <h3>Personal Details</h3>
-    
-    <label for="name">Name</label><br>
-    <input type="text" id="name" name="name" value="<%= user.name %>" required><br><br>
-    
-    <label for="email">Email</label><br>
-    <input type="email" id="email" name="email" value="<%= user.email %>" required><br><br>
-    
-    <button type="submit" class="reg-button">Update Profile</button>
-</form>
-=======
-    <div class="target-savings-widget">
-        <h3>Savings Targets</h3>
-        <table>
+        <h4>Current Targets</h4>
+        <table aria-label="Savings targets table">
+            <caption>List of your current savings goals</caption>
             <thead>
                 <tr>
                     <th>Amount</th>
@@ -95,20 +72,24 @@
                 </tr>
             </thead>
             <tbody>
-                <% if (data && data.targetSavings && data.targetSavings.length > 0) { %>
+                <% 
+                    const targetSavings = (data && data.targetSavings) || []; 
+                %>
+                
+                <% if (targetSavings.length > 0) { %>
                     
-                    <% data.targetSavings.forEach((t, index) => { %>
+                    <% targetSavings.forEach((t, index) => { %>
                         <tr>
                             <td>$<%= t.amount.toFixed(2) %></td>
                             <td><%= t.category %></td>
                             <td>
-                                <form action="/users/profile" method="POST" style="display:inline;">
+                                <form action="/users/profile" method="POST" class="delete-form">
                                     <% if (locals.csrfToken) { %>
-                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                        <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
                                     <% } %>
                                     <input type="hidden" name="action" value="delete">
                                     <input type="hidden" name="index" value="<%= index %>">
-                                    <button type="submit" class="btn-delete">Delete</button>
+                                    <button type="submit" class="btn-delete" onclick="return confirm('Are you sure you want to delete this savings goal?');">Delete</button>
                                 </form>
                             </td>
                         </tr>
@@ -123,22 +104,59 @@
                 <% } %>
             </tbody>
         </table>
-    
-        <form action="/users/profile" method="POST" style="margin-top: 15px;">
-            <% if (locals.csrfToken) { %>
-                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <% } %>
-            <input type="hidden" name="action" value="add">
-            <input type="number" name="amount" placeholder="Amount" required step="0.01">
-            <select name="category">
-                <option value="general">General</option>
-                <option value="vacation">Vacation</option>
-                <option value="emergency">Emergency</option>
-                <option value="car">Car</option>
-                <option value="house">House</option>
-            </select>
-            <button type="submit">Add Target</button>
-        </form>
-    </div>    
+    </div> 
 </div>
->>>>>>> Stashed changes
+
+<style>
+    /* CSS for the Two-Widget Layout */
+    .dashboard-layout {
+        display: flex;
+        gap: 20px; /* Space between the widgets */
+        flex-wrap: wrap; /* Allows widgets to stack on smaller screens */
+        margin-top: 20px;
+    }
+    
+    .widget {
+        flex: 1; /* Makes both widgets take up equal space */
+        min-width: 300px; /* Ensures they don't get too squished */
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        background-color: #fff;
+    }
+
+    /* Styling for the Savings Goal Form */
+    .add-target-form input[type="number"], 
+    .add-target-form select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    .add-target-form label {
+        display: block;
+        margin-top: 10px;
+        font-weight: bold;
+    }
+
+    .delete-form {
+        display: inline;
+    }
+    
+    /* Financial Summary Specific Styles (retained from your previous code) */
+    .widget-main-stat { text-align: center; padding: 10px 0; margin-bottom: 15px; border-bottom: 1px solid #eee; }
+    .stat-label { display: block; font-size: 0.9em; color: #666; }
+    .stat-value { font-size: 2em; font-weight: bold; }
+    .negative { color: #d9534f; } /* Red */
+    .income, .positive, .status-success { color: #5cb85c; } /* Green */
+    .expense, .status-deficit { color: #f0ad4e; } /* Orange/Yellow */
+    .widget-row { display: flex; }
+    .widget-col { flex: 1; text-align: center; }
+    .border-left { border-left: 1px solid #eee; }
+    .widget-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .widget-status { padding: 4px 8px; border-radius: 4px; color: white; font-size: 0.8em; text-transform: uppercase; }
+</style>

@@ -5,34 +5,37 @@ const valid = require('../middleware/validator')
 const auth = require('../middleware/auth')
 const router = express.Router();
 
-//GET /sign-up: send sign-up page to client
+// --- AUTHENTICATION ROUTES (Login, Signup, Logout) ---
+
+// GET /sign-up: send sign-up page to client
 router.get('/sign-up', controller.signup);
 
-//GET /inbox: send inbox page to client
-router.get('/inbox', controller.inbox);
+// POST /sign-up: create a new user
+router.post('/sign-up', valid.validatorSignUp, valid.validateResults, controller.signupUser);
 
-//POST /users: create a new user
-router.post('/sign-up', valid.validatorSignUp, valid.validateResults, controller.signupUser)
-
-//GET /login: send login page to client
+// GET /log-in: send login page to client
 router.get('/log-in', controller.login);
 
-//POST /login: start new user session
+// POST /log-in: start new user session
 router.post('/log-in', valid.validateLogin, valid.validateResults, controller.loginUser);
 
-// GET /users/profile: Render the user's profile page
+// GET /logout: logout current user session
+router.get('/logout', auth.isLoggedIn, controller.logOut);
+
+// --- MAIN PROFILE ROUTES ---
+
+// GET /users/profile: Render the user's main profile/dashboard tab
 router.get('/profile', auth.isLoggedIn, controller.getProfile);
 
-// POST /users/profile: Handle adding/deleting savings targets
+// POST /users/profile: Handle adding/deleting savings targets (via the main profile tab)
 router.post('/profile', auth.isLoggedIn, controller.updateTargetSavings);
 
-// --- Profile Sub-pages ---
+// --- PROFILE SUB-TAB ROUTES ---
 
-// NEW ROUTES FOR LINK BANK ACCOUNT
 // GET /users/profile/linkBank: Render the Link Bank Account tab
 router.get('/profile/linkBank', auth.isLoggedIn, controller.getLinkBank); 
 
-// POST /users/profile/linkBank/callback: Handle the Teller Link success callback (receiving enrollment_id)
+// POST /users/profile/linkBank/callback: Handle the Teller Link success callback
 router.post('/profile/linkBank/callback', auth.isLoggedIn, controller.handleTellerCallback); 
 
 // GET /users/profile/notifications: Render the notifications settings tab
@@ -41,38 +44,35 @@ router.get('/profile/notifications', auth.isLoggedIn, controller.getNotification
 // POST /users/profile/notifications: Handle saving notification settings
 router.post('/profile/notifications', auth.isLoggedIn, controller.updateNotifications);
 
+// GET /users/profile/securityQuestions: Render the profile settings tab (user info, email, etc.)
+router.get('/profile/securityQuestions', auth.isLoggedIn, controller.getSecurity);
+
+// POST /users/profile/update: Handle updates to user details and security questions from the profile settings tab
+router.post('/profile/update', auth.isLoggedIn, controller.updateProfile);
+
 // GET /users/profile/sandbox: Render the sandbox mode
 router.get('/profile/sandbox', auth.isLoggedIn, sandboxController.getSandbox);
 
 // POST /users/profile/sandbox: Handle sandbox form actions
 router.post('/profile/sandbox', sandboxController.handleActions);
 
-// GET /users/profile/securityQuestions: Render the profile configurations tab (formerly security questions)
-router.get('/profile/securityQuestions', auth.isLoggedIn, controller.getSecurity);
+// --- INBOX ROUTES ---
 
-// POST /users/profile/security: Handle updates to user details and security questions
-router.post('/profile/security', auth.isLoggedIn, controller.updateProfile);
-
-// Notification Settings Tab
-router.get('/profile/notifications', auth.isLoggedIn, controller.getNotifications);
-
-router.post('/profile/notifications', auth.isLoggedIn, controller.updateNotifications);
-
-// INBOX ROUTES
+// GET /inbox: send inbox page to client
 router.get('/inbox', auth.isLoggedIn, controller.getInbox);
 router.post('/inbox/mark-read/:id', auth.isLoggedIn, controller.markAsRead);
 router.post('/inbox/mark-all-read', auth.isLoggedIn, controller.markAllRead);
 
-//GET /logout: logout current user session
-router.get('/logout', auth.isLoggedIn, controller.logOut);
+// --- INITIAL SECURITY QUESTION SETUP ROUTES ---
 
-// --- One-Time Security Question Setup Routes (Requires Login) ---
+// GET /security-setup: Render the one-time security question setup page
 router.get('/security-setup', auth.isLoggedIn, controller.getSecuritySetup);
 
+// POST /security-setup: Handle saving the one-time security question
 router.post('/security-setup', auth.isLoggedIn, controller.postSecuritySetup);
 
 
-// --- Password Recovery Routes (Does NOT Require Login) ---
+// --- PASSWORD RECOVERY ROUTES (Forgot Password) ---
 
 // 1. GET /users/forgot: Renders form asking for email
 router.get('/forgot', controller.forgotPassword);

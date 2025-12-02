@@ -5,6 +5,9 @@
   <title>FIN: Budget</title>
 =======
   <title>FIN: Home</title>
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
   <%- include('../partials/header.ejs'); %>
 </head>
@@ -132,6 +135,17 @@
     <%- JSON.stringify(recentTransactions) %>
   </script>
 
+<<<<<<< Updated upstream
+=======
+  <script id="payload-income" type="application/json">
+    <%- JSON.stringify(incomeChart) %>
+  </script>
+
+  <script id="payload-transactions" type="application/json">
+    <%- JSON.stringify(recentTransactions) %>
+  </script>
+
+>>>>>>> Stashed changes
   <script>
     // 1. Retrieve and Parse Data safely
     const incomeChart = JSON.parse(document.getElementById('payload-income').textContent);
@@ -159,6 +173,9 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="/js/budgetCharts.js"></script>
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
   <%- include('../partials/footer.ejs')%>
 </body>

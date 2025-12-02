@@ -1,6 +1,6 @@
 <h2>Notification Settings</h2>
-<<<<<<< Updated upstream
-<p>Manage how and when you receive alerts about your budget.</p>
+
+<p>Manage how and when you receive alerts about your budget and savings goals.</p>
 
 <form action="/users/profile/notifications" method="POST" class="profile-form">
 
@@ -17,7 +17,7 @@
 
     <hr>
 
-    <h3>Real-Time Alerts</h3>
+    <h3>Real-Time Alerts (Budget)</h3>
     
     <div class="notification-item">
         <input type="checkbox" id="threshold" name="threshold" <%= user.notifications.thresholdWarning ? 'checked' : '' %>>
@@ -30,6 +30,23 @@
         <label for="overbudget"><strong>Over Limit Alert (100%)</strong></label>
         <p class="indent-text">Get notified immediately when you exceed a budget.</p>
     </div>
+
+    <hr>
+
+    <h3>Savings Goal Alerts</h3>
+
+    <div class="notification-item">
+        <label for="savingsGoalNotif"><strong>Savings Goal Near Completion (90%)</strong></label>
+        <input 
+            type="checkbox" 
+            id="savingsGoalNotif" 
+            name="savingsGoalNotif"
+            <%= user.notifications.savingsGoalNotifEnabled ? 'checked' : '' %> 
+        >
+        <p class="indent-text">Receive an alert when your progress on a target savings goal reaches 90%.</p>
+    </div>
+
+    <hr>
 
     <h3>Scheduled Summaries</h3>
 
@@ -61,27 +78,45 @@
     input:checked + .slider { background-color: #2fbd08; }
     input:checked + .slider:before { transform: translateX(26px); }
     .switch-container { display: flex; align-items: center; justify-content: space-between; max-width: 400px; }
+
+    /* General Form Styling for Checkboxes to align with the toggle style */
+    .notification-item input[type="checkbox"] { /* Hide standard checkbox */
+        opacity: 0;
+        width: 0;
+        height: 0;
+        position: absolute;
+    }
+    .notification-item label {
+        display: inline-block;
+        padding-left: 30px; /* Space for the custom switch */
+        position: relative;
+        cursor: pointer;
+    }
+
+    /* Basic Checkbox simulation using CSS */
+    .notification-item label::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 2px;
+        width: 18px;
+        height: 18px;
+        border: 1px solid #ccc;
+        background-color: #eee;
+        border-radius: 3px;
+    }
+
+    .notification-item input[type="checkbox"]:checked + label::before {
+        background-color: #2fbd08;
+        border-color: #2fbd08;
+    }
+
+    .notification-item input[type="checkbox"]:checked + label::after {
+        content: '\2713'; /* Checkmark symbol */
+        position: absolute;
+        top: 2px;
+        left: 3px;
+        font-size: 14px;
+        color: white;
+    }
 </style>
-=======
-<p>Manage the alerts you receive about your financial goals and activity.</p>
-
-<form action="/users/profile/notifications" method="POST" class="notification-form">
-    
-    <h3>Savings Goal Alerts</h3>
-
-    <div class="form-group">
-        <label for="savingsGoalNotif">
-            Send alert when close to achieving a set savings goal.
-        </label>
-        <input 
-            type="checkbox" 
-            id="savingsGoalNotif" 
-            name="savingsGoalNotif"
-            <%= settings.savingsGoal ? 'checked' : '' %> 
-        >
-        <p class="description">You will receive a notification when your progress on a target savings goal reaches 90%.</p>
-    </div>
-
-    <button type="submit" class="reg-button">Save Notification Settings</button>
-</form>
->>>>>>> Stashed changes

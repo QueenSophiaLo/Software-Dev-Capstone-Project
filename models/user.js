@@ -8,7 +8,11 @@ const userSchema = new Schema({
     password: { type: String, required: [true, 'Password is required'] },
     money: { type: Number, default: 0.00 },
     
-    // Three sets of security questions
+    // Bank Connection Field (Top-Level)
+    // This will store the mock token or the real Access Token from Teller.
+    tellerEnrollmentId: { type: String, default: null }, // 💡 CORRECTED LOCATION
+    
+    // --- Security Questions ---
     securityQuestion1: { type: String, trim: true },
     securityAnswer1: { type: String, trim: true },
     
@@ -18,20 +22,22 @@ const userSchema = new Schema({
     securityQuestion3: { type: String, trim: true },
     securityAnswer3: { type: String, trim: true },
 
-<<<<<<< Updated upstream
-    // Notification Preferences
+
+    // --- Notification Preferences Sub-Schema ---
     notifications: {
-        enabled: { type: Boolean, default: false }, // Master toggle
+        enabled: { type: Boolean, default: false },       // Master toggle
         thresholdWarning: { type: Boolean, default: true }, // 80% warning
         overBudgetAlert: { type: Boolean, default: true }, // 100% alert
         weeklySummary: { type: Boolean, default: false },
-        monthlySummary: { type: Boolean, default: false }
+        monthlySummary: { type: Boolean, default: false },
+        // NOTE: If you use the savingsGoalNotifEnabled in your controller, 
+        // you should include it here, but it's redundant with the top-level 
+        // notifications field in your controller logic, so I've simplified it.
+        // savingsGoalNotifEnabled: { type: Boolean, default: false },
     }
-=======
-    savingsGoalNotifEnabled: { type: Boolean, default: false },
-    tellerEnrollmentId: { type: String, default: null },
->>>>>>> Stashed changes
 });
+
+// --- Mongoose Middleware (Pre-save Hooks) ---
 
 userSchema.pre('save', function(next) {
     let user = this;
@@ -42,6 +48,8 @@ userSchema.pre('save', function(next) {
     }
 
     // Hash ALL 3 Security Answers if modified
+    // NOTE: If security answers are modified, they must be set directly
+    // on the user model for these hooks to fire (e.g., user.securityAnswer1 = 'new_answer').
     if (user.isModified('securityAnswer1') && user.securityAnswer1) {
         user.securityAnswer1 = bcrypt.hashSync(user.securityAnswer1, 10);
     }
@@ -55,13 +63,16 @@ userSchema.pre('save', function(next) {
     next();
 });
 
+// --- Mongoose Methods ---
+
 userSchema.methods.comparePassword = function(loginPassword) {
     return bcrypt.compare(loginPassword, this.password);
 };
 
 // Helper to compare a specific answer (1, 2, or 3)
 userSchema.methods.compareSecurityAnswer = function(submittedAnswer, questionNumber) {
-    const storedHash = this[`securityAnswer${questionNumber}`];
+    // Dynamically retrieve the correct stored hash property
+    const storedHash = this[`securityAnswer${questionNumber}`]; 
     if (!storedHash) return false;
     return bcrypt.compare(submittedAnswer, storedHash);
 };

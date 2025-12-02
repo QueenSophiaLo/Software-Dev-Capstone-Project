@@ -1,7 +1,6 @@
 <h2>Bank Account Connection</h2>
 
 <div class="bank-page-layout">
-    
     <div class="bank-link-sidebar">
         <% if (!hasBankConnected) { %>
             <p>Connect your financial institution to start tracking.</p>
@@ -9,9 +8,9 @@
                 Link Bank Account
             </button>
         <% } else { %>
-            <p>✅ **Connected!**</p>
+            <p><strong>Connected!</strong></p>
             <p class="description">Your accounts are currently connected and data is being fetched from the Teller Sandbox.</p>
-            <button class="btn-secondary">Re-Link/Update Account</button>
+            <button id="relink-account-button" class="btn-secondary">Re-Link/Update Account</button>
         <% } %>
     </div>
 
@@ -22,10 +21,10 @@
             <% accounts.forEach(account => { %>
                 <div class="account-card">
                     <h4><%= account.name %> (<%= account.type %>)</h4>
-                    <p>Institution: **<%= account.institution.name %>**</p>
-                    <p>Available Balance: **$<%= account.balance.available.toFixed(2) %>**</p>
+                    <p>Institution: <strong><%= account.institution.name %></strong></p>
+                    <p>Available Balance: <strong>$<%= account.balance.available.toFixed(2) %></strong></p>
                     <p>Account ID: <code><%= account.id %></code></p>
-                    <button class="btn-data-fetch">Fetch Transactions</button>
+                    <button class="btn-data-fetch" data-account-id="<%= account.id %>">Fetch Transactions</button>
                 </div>
             <% }) %>
 
@@ -37,7 +36,6 @@
             <p>Link a bank account to view your financial profile. Use Teller Sandbox credentials for development.</p>
         <% } %>
     </div>
-
 </div>
 
 <script>
@@ -62,15 +60,16 @@
                 const csrfToken = document.querySelector('input[name="_csrf"]')?.value || ''; 
                 
                 // Send the enrollment_id to your server's callback route
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (csrfToken) {
+                    headers['X-CSRF-Token'] = csrfToken;
+                }
+                
                 fetch('/users/profile/linkBank/callback', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        // Include CSRF Token if you are using Express Session or similar middleware
-                        <% /* if (locals.csrfToken) { */ %>
-                            // 'X-CSRF-Token': csrfToken, 
-                        <% /* } */ %>
-                    },
+                    headers: headers,
                     body: JSON.stringify({ enrollment_id: enrollmentId })
                 })
                 .then(response => {
@@ -93,8 +92,8 @@
 
             // Initialize TellerConnect
             const tellerConnect = TellerConnect.setup({
-                // REPLACE THIS WITH YOUR ACTUAL TELLER DEVELOPMENT APPLICATION ID
-                applicationId: 'app_plo31u3d20bf7jh9ba000', 
+                // Application ID should be passed from server (not hardcoded)
+                applicationId: '<%= tellerAppId %>',
                 environment: 'sandbox', // Crucial for testing!
                 
                 onSuccess: onSuccess,
@@ -112,6 +111,25 @@
                 e.preventDefault();
                 tellerConnect.open();
             });
+
+            // Re-link button handler
+            const relinkButton = document.getElementById('relink-account-button');
+            if (relinkButton) {
+                relinkButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    tellerConnect.open();
+                });
+            }
         }
+
+        // Fetch Transactions button handlers (using event delegation)
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-data-fetch')) {
+                const accountId = e.target.getAttribute('data-account-id');
+                console.log('Fetching transactions for account:', accountId);
+                // TODO: Implement transaction fetching logic
+                alert('Transaction fetching for account ' + accountId + ' - to be implemented');
+            }
+        });
     });
 </script>
