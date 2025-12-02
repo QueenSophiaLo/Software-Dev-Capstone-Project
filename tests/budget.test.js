@@ -1,9 +1,27 @@
 process.env.NODE_ENV = 'test';
 const { addBank, budgetSheet, resources, resourceDetail } = require('../controllers/budgetController');
 const model = require('../models/resource');
+const controller = require('../controllers/budgetController')
+const FinancialData = require('../models/finance-data')
 
 // Mock the Resource model
 jest.mock('../models/resource');
+jest.mock("../models/finance-data");
+
+const flashMock = jest.fn();
+
+const mockReq = (session = {}, body = {}) => ({
+    session,
+    body,
+    flash: flashMock
+  });
+  
+  const mockRes = () => {
+    const res = {};
+    res.render = jest.fn();
+    res.redirect = jest.fn();
+    return res;
+  };
 
 describe('Budget Controller Unit Tests', () => {
     let req, res, next;
@@ -30,22 +48,154 @@ describe('Budget Controller Unit Tests', () => {
         jest.clearAllMocks();
     });
 
-    // Test for the static pages
-    /*describe('addBank', () => {
-        it('should render the add-bank page', () => {
-            addBank(req, res, next);
-            expect(res.render).toHaveBeenCalledWith('financials/add-bank');
-            expect(next).not.toHaveBeenCalled();
+    describe("Controller: budget", () => {
+        it("should render the add-bank page with applicationId", () => {
+            const req = mockReq();
+            const res = mockRes();
+        
+            process.env.Teller_app_id = "test-app-id";
+        
+            controller.budget(req, res);
+        
+            expect(res.render).toHaveBeenCalledWith("financials/add-bank", {
+            applicationId: "test-app-id"
+            });
         });
-    });
+        });
+        
+        describe("Controller: bankaccount", () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+        });
+        
+        it("should redirect if no financial data is found", async () => {
+            const req = mockReq({ user: "123" });
+            const res = mockRes();
+        
+            FinancialData.findOne.mockResolvedValue(null);
+        
+            await controller.bankaccount(req, res);
+        
+            expect(req.flash).toHaveBeenCalledWith("error", "No financial data found.");
+            expect(res.redirect).toHaveBeenCalledWith("/");
+        });
+        
+        it("should render the budget page with calculated data", async () => {
+            const req = mockReq({ user: "123" });
+            const res = mockRes();
+        
+            FinancialData.findOne.mockResolvedValue({
+            accounts: [{ id: "acc1", type: "checking" }],
+            balances: [{ account_id: "acc1", available: 500 }],
+            transactions: [[
+                { id: "t1", amount: -20, type: "card_payment", date: "2025-01-01", description: "Test" }
+            ]],
+            notes: "my note"
+            });
+        
+            await controller.bankaccount(req, res);
+        
+        expect(res.render).toHaveBeenCalledWith(
+            "financials/budget",
+            expect.objectContaining({
+                accounts: [{ id: "acc1", type: "checking" }],
+                balances: [{ account_id: "acc1", available: 500 }],
+                notes: "my note",
+                incomeChart: [{ type: "checking", amount: 500 }],
+                recentTransactions: [
+                expect.objectContaining({
+                    id: "t1",
+                    amount: -20,
+                })
+                ],
+                budgetSummary: expect.objectContaining({
+                status: "ok",
+                totalIncome: 500,
+                totalExpense: 20,
+                })
+            })
+            );
+            
+        });
+        
+        it("should redirect on server error", async () => {
+                FinancialData.findOne.mockReturnValue({
+                    then: () => Promise.reject(new Error("boom"))
+                });
 
-    describe('budgetSheet', () => {
-        it('should render the budget page', () => {
-            budgetSheet(req, res, next);
-            expect(res.render).toHaveBeenCalledWith('financials/budget');
-            expect(next).not.toHaveBeenCalled();
+                await controller.bankaccount(req, res);
+
+                expect(req.flash).toHaveBeenCalledWith(
+                    "error",
+                    "Server error retrieving budget data."
+                );
+
+                expect(res.redirect).toHaveBeenCalledWith("/");
+            });
         });
-    });*/
+        
+        describe("Controller: saveNotes", () => {
+        beforeEach(() => jest.clearAllMocks());
+        
+        it("should update notes and re-render budget", async () => {
+            const req = mockReq(
+            { user: "123" },
+            { notes: "new note" }
+            );
+            const res = mockRes();
+        
+            FinancialData.findOneAndUpdate.mockResolvedValue({ notes: "new note" });
+        
+            controller.bankaccount = jest.fn();
+        
+            await controller.saveNotes(req, res);
+        
+            expect(FinancialData.findOneAndUpdate).toHaveBeenCalledWith(
+            { userId: "123" },
+            { notes: "new note" },
+            { upsert: false, new: true }
+            );
+        
+            expect(controller.bankaccount).toHaveBeenCalled();
+        });
+        
+        it("should redirect if update returns null", async () => {
+            const req = mockReq(
+            { user: "123" },
+            { notes: "test" }
+            );
+            const res = mockRes();
+        
+            FinancialData.findOneAndUpdate.mockResolvedValue(null);
+        
+            await controller.saveNotes(req, res);
+        
+            expect(req.flash).toHaveBeenCalledWith(
+            "error",
+            "Could not update notes."
+            );
+            expect(res.redirect).toHaveBeenCalledWith("/financial/budget");
+        });
+        
+        it("should redirect on error", async () => {
+            const req = mockReq(
+            { user: "123" },
+            { notes: "test" }
+            );
+            const res = mockRes();
+        
+            FinancialData.findOne.mockImplementation(() => Promise.reject("err"));
+        
+            await controller.saveNotes(req, res);
+        
+            expect(req.flash).toHaveBeenCalledWith(
+            "error",
+            "Could not update notes."
+            );
+        
+            expect(res.redirect).toHaveBeenCalledWith("/financial/budget");
+        });
+        });
 
     // Tests for the new "resources" list page
     describe('resources', () => {
