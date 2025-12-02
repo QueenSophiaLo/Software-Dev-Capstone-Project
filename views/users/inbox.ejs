@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+
 <head>
   <title>FIN: Inbox</title>
   <!-- Header -->
@@ -17,15 +16,12 @@
 <%- include('../partials/header.ejs'); %>
 
     <h1>Inbox (WIP)</h1>
-    <button onclick="sendEmail()">Send Email</button> 
+    <p> <%= user.name %> <br> <%= user.email%> </p>
+    <button onclick="sendEmail('<%= user.name %>', '<%= user.email %>')">Send Email</button> 
   <!-- Footer -->
     <script>
-      var templateParams = {
-        name: 'test',
-        email: 'rissa.halonkin@gmail.com',
-      };
-      function sendEmail(){
-        emailjs.send('service_amu94ph','template_qb9mimk', templateParams).then(
+      function sendEmail(username, useremail){
+        emailjs.send("service_amu94ph","template_qb9mimk",{name: username, email: useremail}).then(
           (response) => {
             console.log('SUCCESS!', response.status, response.text);
           },
@@ -37,4 +33,4 @@
       
     </script>
   <%- include('../partials/footer.ejs')%>
-</html>
+

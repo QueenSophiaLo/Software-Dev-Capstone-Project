@@ -9,9 +9,16 @@ exports.signup = (req, res) =>{
     return res.render('./users/new')
 }
 
-exports.inbox = (req, res) =>{
-    return res.render('./users/inbox')
+exports.inbox = async (req, res) =>{
+    const userId = req.session.user;
+
+    // Fetch user data, but exclude the hashed password/answer for security
+    const user = await model.findById(userId).select('-password -securityAnswer'); 
+    res.render('./users/inbox', 
+        {user: user}
+    );
 }
+
 
 exports.loginUser = (req, res, next)=>{
     let email = req.body.email;

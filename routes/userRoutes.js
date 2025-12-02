@@ -9,7 +9,7 @@ const router = express.Router();
 router.get('/sign-up', controller.signup);
 
 //GET /inbox: send inbox page to client
-router.get('/inbox', controller.inbox);
+router.get('/inbox', auth.isLoggedIn, controller.inbox);
 
 //POST /users: create a new user
 router.post('/sign-up', valid.validatorSignUp, valid.validateResults, controller.signupUser)
