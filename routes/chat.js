@@ -28,125 +28,115 @@ function getObjectId(userId) {
 
 async function get_user_budget_summary(userId) {
     const userObjectId = getObjectId(userId);
-    if (!userObjectId) return { status: "error", message: "Invalid user identifier." };
-    
-    // try {
-    //     let sandboxProfile = await Sandbox.findOneAndUpdate(
-    //         { userId: userObjectId },
-    //         { $setOnInsert: { monthlyIncome: 0, expenses: [] } }, 
-    //         { new: true, upsert: true, lean: true }
-    //     );
-    //     const totalIncome = sandboxProfile.monthlyIncome || 0;
-    //     const totalExpenses = sandboxProfile.expenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
-    //     const remainingCashFlow = totalIncome - totalExpenses;
-    //     const status = remainingCashFlow >= 0 ? 'Surplus' : 'Deficit';
+    if (!userObjectId) {
+        return { status: "error", message: "Invalid user identifier." };
+    }
 
-    //     const largestExpense = sandboxProfile.expenses.reduce((max, expense) => 
-    //         (expense.amount > max.amount ? expense : max), { amount: 0, description: 'N/A' });
-        
-    //     return {
-    //         status: status,
-    //         monthlyIncome: totalIncome.toFixed(2),
-    //         totalExpenses: totalExpenses.toFixed(2),
-    //         remainingCashFlow: remainingCashFlow.toFixed(2),
-    //         largestExpense: largestExpense.description,
-    //         largestExpenseAmount: largestExpense.amount.toFixed(2),
-    //         message: `The user's current sandbox profile shows an income of $${totalIncome.toFixed(2)} and total expenses of $${totalExpenses.toFixed(2)}, resulting in a cash flow of $${remainingCashFlow.toFixed(2)}.`
-    //     };
+    try {
+        const data = await FinanceData.findOne({ userId: userObjectId }).lean();
 
-    // } catch (error) {
-    //     console.error("Database error in get_user_budget_summary:", error);
-    //     return { error: "An error occurred while accessing sandbox data." };
-    // }
+        if (!data) {
+            return { status: "error", message: "No finance data found for user." };
+        }
 
-    FinanceData.findOne({ userId: userObjectId })
-        .then(data => {
-            if (!data) {
-                req.flash("error", "No financial data found.");
-                return res.redirect("/");
+        const accounts = data.accounts || [];
+        const balances = data.balances || [];
+        const txns = data.transactions?.[0] || [];
+
+        // ---- Normalize Transactions ----
+        const recentTransactions = txns.slice(0, 30);
+
+        const incomingTypes = [
+            "credit", "ach_in", "income", "deposit",
+            "interest", "transfer_in", "zelle_in", "refund"
+        ];
+
+        const outgoingTypes = [
+            "card_payment", "ach_out", "debit",
+            "transfer_out", "zelle_out", "fee"
+        ];
+
+        const normalizedTxns = recentTransactions.map(t => {
+            const rawAmount = Number(t.amount);
+            let amount = rawAmount;
+
+            if (incomingTypes.includes(t.type)) {
+                amount = Math.abs(rawAmount);
+            } else if (outgoingTypes.includes(t.type)) {
+                amount = -Math.abs(rawAmount);
             }
-    
-            const accounts = data.accounts 
-            const balances = data.balances 
-    
-            const recentTransactions = (data.transactions[0]).slice(0, 30);
-    
-            const normalizedTxns = recentTransactions.map(t => {
-                const rawAmount = parseFloat(t.amount);
-                const incomingTypes = ["credit", "ach_in", "income", "deposit", "interest", "transfer_in", "zelle_in", "refund"];
-                const outgoingTypes = ["card_payment", "ach_out", "debit", "transfer_out", "zelle_out", "fee"];
-    
-                let amountNum = rawAmount;
-    
-                if (incomingTypes.includes(t.type)) {
-                    amountNum = Math.abs(rawAmount);
-                } else if (outgoingTypes.includes(t.type)) {
-                    amountNum = -Math.abs(rawAmount);
-                }
-    
-                return {
-                    id: t.id,
-                    date: t.date,
-                    description: t.description,
-                    category: t.details?.category || "Other",
-                    type: t.type,
-                    amount: amountNum
-                };
-            });
-    
-            normalizedTxns.sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-            const balanceEntries = (data.balances).map(b => ({
-                id: `balance_${b.account_id}`,
-                date: new Date().toISOString(),
-                description: `Balance (${b.account_id.slice(-4)})`,
-                category: "Balance",
-                type: "balance",
-                amount: Number(b.available)
-            }))
-            
-    
-            const normalizedWithBalance = [...normalizedTxns, ...balanceEntries];
-    
-            const incomeChart = balances.map(bal => {
-                const acc = accounts.find(a => a.id === bal.account_id);
-                return {
-                    type: acc?.type,
-                    amount: Number(bal.available)
-                };
-            });
-    
-            const totalIncome = normalizedWithBalance
-                .filter(t => t.amount > 0)
-                .reduce((sum, t) => sum + t.amount, 0);
-    
-            const totalExpense = normalizedWithBalance
-                .filter(t => t.amount < 0)
-                .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-    
-            const targetExpenditure = data.targetSavings.reduce((sum, t) => sum + Number(t.amount), 0); 
-    
-            const budgetSummary = {
-                status: targetExpenditure < totalExpense ? "overbudget" : "ok",
-                targetExpenditure,
-                totalExpense,
-                totalIncome,
-                surplusDeficit: totalIncome - totalExpense
-            };
-    
+
             return {
-                accounts,
-                balances,
-                recentTransactions,
-                budgetSummary,
-                incomeChart,
-                notes: data.notes || ""
+                id: t.id,
+                date: t.date,
+                description: t.description,
+                category: t.details?.category || "Other",
+                type: t.type,
+                amount
             };
-        })
-        .catch(() => {
-            req.flash("error", "Server error retrieving budget data.");
-            res.redirect("/");
         });
+
+        // Most recent first
+        normalizedTxns.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // ---- Create Balance Entries as "Transactions" ----
+        const balanceEntries = balances.map(b => ({
+            id: `balance_${b.account_id}`,
+            date: new Date().toISOString(),
+            description: `Balance (${b.account_id.slice(-4)})`,
+            category: "Balance",
+            type: "balance",
+            amount: Number(b.available)
+        }));
+
+        const allEntries = [...normalizedTxns, ...balanceEntries];
+
+        // ---- Income Chart ----
+        const incomeChart = balances.map(bal => {
+            const acc = accounts.find(a => a.id === bal.account_id);
+            return {
+                type: acc?.type || "unknown",
+                amount: Number(bal.available) || 0
+            };
+        });
+
+        // ---- Budget Summary ----
+        const totalIncome = allEntries
+            .filter(t => t.amount > 0)
+            .reduce((sum, t) => sum + t.amount, 0);
+
+        const totalExpense = allEntries
+            .filter(t => t.amount < 0)
+            .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+        const targetExpenditure = data.targetSavings
+            ?.reduce((sum, t) => sum + Number(t.amount || 0), 0) || 0;
+
+        const status = targetExpenditure < totalExpense ? "overbudget" : "ok";
+
+        const budgetSummary = {
+            status,
+            targetExpenditure: Number(targetExpenditure.toFixed(2)),
+            totalExpense: Number(totalExpense.toFixed(2)),
+            totalIncome: Number(totalIncome.toFixed(2)),
+            surplusDeficit: Number((totalIncome - totalExpense).toFixed(2))
+        };
+
+        return {
+            status,
+            accounts,
+            balances,
+            recentTransactions,
+            incomeChart,
+            budgetSummary,
+            notes: data.notes || "",
+            message: `Total income $${totalIncome.toFixed(2)}, expenses $${totalExpense.toFixed(2)}.`
+        };
+
+    } catch (error) {
+        console.error("Error in financial summary:", error);
+        return { status: "error", message: "Unable to compute financial summary." };
+    }
 }
 
 async function get_financial_resource(query) {
@@ -217,7 +207,16 @@ const toolDeclarations = [
             {
                 name: 'get_user_budget_summary',
                 description: 'Retrieves the current financial status, remaining budget, and goal tracking for the user.',
-                parameters: { type: 'OBJECT', properties: {} },
+                parameters: {
+                    type: 'OBJECT',
+                    properties: {
+                        userId: {
+                            type: 'STRING',
+                            description: 'The user ID whose budget summary should be retrieved.'
+                        }
+                    },
+                    required: []
+                }
             },
             {
                 name: 'navigate_to_page',
