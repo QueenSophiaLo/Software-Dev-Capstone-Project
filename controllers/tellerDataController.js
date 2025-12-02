@@ -1,7 +1,7 @@
 const FinancialData = require('../models/finance-data');
 const model = require('../models/user');
 
-async function fetchAccounts(accessToken) {
+exports.fetchAcc = async function (accessToken) {
     const res = await fetch('https://api.teller.io/accounts', { 
         headers: { 
             Authorization: 'Basic ' + Buffer.from(`${accessToken}:`).toString('base64')
@@ -11,7 +11,7 @@ async function fetchAccounts(accessToken) {
     return res.json();
 }
 
-async function fetchTransactions(accountId, accessToken) {
+exports.fetchTrans = async function (accountId, accessToken) {
     const res = await fetch(`https://api.teller.io/accounts/${accountId}/transactions`, {
       headers: {
         Authorization: 'Basic ' + Buffer.from(`${accessToken}:`).toString('base64')
@@ -20,13 +20,13 @@ async function fetchTransactions(accountId, accessToken) {
   
     if (!res.ok) {
       const errData = await res.json();
-      throw new Error(errData.message || 'Failed to fetch transactions');
+      throw new Error('Failed to fetch transactions');
     }
   
     return res.json();
   }
 
-async function fetchBalances(accountId, accessToken) {
+exports.fetchBal = async function (accountId, accessToken) {
     const res = await fetch(`https://api.teller.io/accounts/${accountId}/balances`, {
         headers: {
         Authorization: 'Basic ' + Buffer.from(`${accessToken}:`).toString('base64')
@@ -35,7 +35,7 @@ async function fetchBalances(accountId, accessToken) {
 
     if (!res.ok) {
         const errData = await res.json();
-        throw new Error(errData.message || 'Failed to fetch balances');
+        throw new Error('Failed to fetch balances');
     }
 
     return res.json();
@@ -44,14 +44,14 @@ async function fetchBalances(accountId, accessToken) {
 exports.handleCallBack = async (req, res) => {
     const { access_token } = req.body;
     try{
-        const accountsData = await fetchAccounts(access_token);
+        const accountsData = await exports.fetchAcc(access_token);
         const bals = []
         const transacts = []
 
         const userAccounts = await Promise.all(accountsData.map(async account => {
-            const balance = await fetchBalances(account.id, access_token);
+            const balance = await exports.fetchBal(account.id, access_token);
             bals.push(balance)
-            const transaction = await fetchTransactions(account.id, access_token);
+            const transaction = await exports.fetchTrans(account.id, access_token);
             transacts.push(transaction)
             return account;
         }));

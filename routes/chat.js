@@ -1,29 +1,19 @@
 const express = require('express');
-const router = express.Router(); // <--- FIX: Defines the router variable
+const router = express.Router(); 
 const { GoogleGenAI } = require('@google/genai');
-require('dotenv').config(); // Load GEMINI_API_KEY from .env
+require('dotenv').config(); 
 const mongoose = require('mongoose'); 
 
-// --- Gemini Setup ---
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const model = "gemini-2.5-flash"; 
 const userChatSessions = {}; 
 
-// --- Imports for Mongoose Models (Ensure these paths are correct in your project) ---
 const Resource = require('../models/resource'); 
 const FinanceData = require('../models/finance-data');
 const Sandbox = require('../models/sandbox'); 
 
-// --- VALID MOCK USER ID (24-character hex string) ---
 const MOCK_USER_ID_HEX = '60f7e4b9f2c69d0015b6d5f7'; 
 
-// ----------------------------------------------------------------------
-// --- TOOL FUNCTIONS: Functions the Gemini Model Can Call ---
-// ----------------------------------------------------------------------
-
-/**
- * Helper function to safely convert a string ID to a Mongoose ObjectId.
- */
 function getObjectId(userId) {
     if (userId === MOCK_USER_ID_HEX) {
         return new mongoose.Types.ObjectId(MOCK_USER_ID_HEX);
@@ -36,23 +26,16 @@ function getObjectId(userId) {
     }
 }
 
-
-/**
- * ACTUAL FUNCTION: Get the user's current budget status from the Sandbox database.
- */
 async function get_user_budget_summary(userId) {
     const userObjectId = getObjectId(userId);
     if (!userObjectId) return { status: "error", message: "Invalid user identifier." };
     
     try {
-        // Find or Create the Sandbox profile (Robustness fix)
         let sandboxProfile = await Sandbox.findOneAndUpdate(
             { userId: userObjectId },
             { $setOnInsert: { monthlyIncome: 0, expenses: [] } }, 
             { new: true, upsert: true, lean: true }
         );
-        
-        // --- Summary Calculation ---
         const totalIncome = sandboxProfile.monthlyIncome || 0;
         const totalExpenses = sandboxProfile.expenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
         const remainingCashFlow = totalIncome - totalExpenses;
@@ -77,9 +60,6 @@ async function get_user_budget_summary(userId) {
     }
 }
 
-/**
- * NEW FUNCTION: Searches the Resource collection for educational content.
- */
 async function get_financial_resource(query) {
     try {
         const resources = await Resource.find({
@@ -111,15 +91,11 @@ async function get_financial_resource(query) {
     }
 }
 
-/**
- * NEW FUNCTION: Logs a simple transaction to the user's sandbox expenses.
- */
 async function log_transaction(userId, description, amount) {
     const userObjectId = getObjectId(userId);
     if (!userObjectId) return { status: "error", message: "Invalid user identifier." };
     
     try {
-        // Ensure the sandbox profile exists before pushing a transaction
         await Sandbox.findOneAndUpdate(
             { userId: userObjectId },
             { $setOnInsert: { monthlyIncome: 0, expenses: [] } },
@@ -145,10 +121,6 @@ async function log_transaction(userId, description, amount) {
         return { error: "An error occurred while logging the transaction." };
     }
 }
-
-// ----------------------------------------------------------------------
-// --- TOOL DECLARATIONS: Define what the model sees ---
-// ----------------------------------------------------------------------
 
 const toolDeclarations = [
     {
@@ -196,12 +168,7 @@ const toolDeclarations = [
     },
 ];
 
-// ----------------------------------------------------------------------
-// --- EXPRESS ROUTE HANDLER ---
-// ----------------------------------------------------------------------
-
 router.post('/', async (req, res) => {
-    // Get userId from session (if logged in) or use the mock ID (Fix from app.js analysis)
     const userId = req.session.user?.toString() || MOCK_USER_ID_HEX; 
     const userMessage = req.body.message;
 
@@ -209,15 +176,12 @@ router.post('/', async (req, res) => {
         return res.status(400).json({ error: 'Message content is required.' });
     }
 
-    // 1. Initialize or Retrieve Chat History Array
     if (!userChatSessions[userId]) {
-        // History starts EMPTY. System instruction is passed in the config below.
         userChatSessions[userId] = []; 
     }
 
     let chatHistory = userChatSessions[userId];
     
-    // Add the new user message to the history
     chatHistory.push({ role: "user", parts: [{ text: userMessage }] });
 
     let response;
@@ -225,15 +189,12 @@ router.post('/', async (req, res) => {
     let finalNavigationCall = null;
     let loopCount = 0;
 
-    // 2. Loop for Function Calling
     while (loopCount < 5) { 
         loopCount++;
 
-        let contents = chatHistory.slice(); // Copy history for the current request
+        let contents = chatHistory.slice(); 
         
-        // Add tool responses to the contents if they exist (This is the second turn payload)
         if (toolResponses.length > 0) {
-            // FIX: Append tool responses as a 'function' role 
             contents.push({
                 role: "function",
                 parts: toolResponses.map(res => ({
@@ -246,13 +207,11 @@ router.post('/', async (req, res) => {
             toolResponses = []; 
         }
 
-        // CRITICAL Validation Check
         if (contents.length === 0) {
-             break; 
+            break; 
         }
 
         try {
-            // FIX: Use the general generateContent call with the full history and config
             response = await ai.models.generateContent({
                 model: model,
                 contents: contents, // Full history array
@@ -262,15 +221,13 @@ router.post('/', async (req, res) => {
                 }
             });
         } catch (e) {
-             console.error("Gemini API Error (Critical Payload Issue):", e.message);
-             delete userChatSessions[userId]; 
-             return res.status(500).json({ response: "I'm sorry, I encountered a critical AI communication error. Please try restarting the chat." });
+            console.error("Gemini API Error (Critical Payload Issue):", e.message);
+            delete userChatSessions[userId]; 
+            return res.status(500).json({ response: "I'm sorry, I encountered a critical AI communication error. Please try restarting the chat." });
         }
 
-        // Check if the model decided to call a function
         if (response.functionCalls && response.functionCalls.length > 0) {
             
-            // Log the model's intent (the function call) into history
             chatHistory.push({ role: "model", parts: [{ functionCall: response.functionCalls[0] }] });
 
             for (const call of response.functionCalls) {
@@ -296,32 +253,27 @@ router.post('/', async (req, res) => {
                     toolResult = { error: `Function ${funcName} not found` };
                 }
 
-                // Append the function call AND the tool result to be sent back to the model
                 toolResponses.push({
                     functionCall: call, 
                     response: toolResult,
                 });
             }
             
-            // Loop again to send tool results back
             continue; 
         } else {
-            // Model returned a final text response, update history and break
             chatHistory.push(response.candidates[0].content);
             break; 
         }
-    } // End of while (true) loop
+    } 
 
-    // 3. Send Final Response to Frontend
     if (finalNavigationCall) {
         return res.json({ 
             action: finalNavigationCall.action,
             target: finalNavigationCall.target,
-            response: response.candidates[0].content.parts[0].text // Get the final text
+            response: response.candidates[0].content.parts[0].text 
         });
     }
 
-    // Default: Send the standard text response
     res.json({ response: response.candidates[0].content.parts[0].text });
 });
 
