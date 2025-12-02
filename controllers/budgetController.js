@@ -79,11 +79,11 @@ exports.bankaccount = (req, res) => {
             .filter(t => t.amount < 0)
             .reduce((sum, t) => sum + Math.abs(t.amount), 0);
 
-        const targetExpense = 1000;
+        const targetExpenditure = data.targetSavings.reduce((sum, t) => sum + Number(t.amount), 0); 
 
         const budgetSummary = {
-            status: targetExpense < totalExpense ? "overbudget" : "ok",
-            targetExpenditure: targetExpense,
+            status: targetExpenditure < totalExpense ? "overbudget" : "ok",
+            targetExpenditure,
             totalExpense,
             totalIncome,
             surplusDeficit: totalIncome - totalExpense

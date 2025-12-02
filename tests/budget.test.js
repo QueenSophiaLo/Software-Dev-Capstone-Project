@@ -85,37 +85,41 @@ describe('Budget Controller Unit Tests', () => {
             const res = mockRes();
         
             FinancialData.findOne.mockResolvedValue({
-            accounts: [{ id: "acc1", type: "checking" }],
-            balances: [{ account_id: "acc1", available: 500 }],
-            transactions: [[
-                { id: "t1", amount: -20, type: "card_payment", date: "2025-01-01", description: "Test" }
-            ]],
-            notes: "my note"
+                accounts: [{ id: "acc1", type: "checking" }],
+                balances: [{ account_id: "acc1", available: 500 }],
+                transactions: [[
+                    { id: "t1", amount: -20, type: "card_payment", date: "2025-01-01", description: "Test" }
+                ]],
+                targetSavings: [
+                    { amount: 100, category: "vacation" },
+                    { amount: 200, category: "emergency" }
+                ],
+                notes: "my note"
             });
         
             await controller.bankaccount(req, res);
-        
-        expect(res.render).toHaveBeenCalledWith(
-            "financials/budget",
-            expect.objectContaining({
-                accounts: [{ id: "acc1", type: "checking" }],
-                balances: [{ account_id: "acc1", available: 500 }],
-                notes: "my note",
-                incomeChart: [{ type: "checking", amount: 500 }],
-                recentTransactions: [
+            expect(res.render).toHaveBeenCalledWith(
+                "financials/budget",
                 expect.objectContaining({
-                    id: "t1",
-                    amount: -20,
+                    accounts: [{ id: "acc1", type: "checking" }],
+                    balances: [{ account_id: "acc1", available: 500 }],
+                    notes: "my note",
+                    incomeChart: [{ type: "checking", amount: 500 }],
+                    recentTransactions: [
+                        expect.objectContaining({
+                            id: "t1",
+                            amount: -20,
+                        })
+                    ],
+                    budgetSummary: expect.objectContaining({
+                        status: "ok",
+                        totalIncome: 500,
+                        totalExpense: 20,
+                        targetExpenditure: 300, 
+                        surplusDeficit: 500 - 20 
+                    })
                 })
-                ],
-                budgetSummary: expect.objectContaining({
-                status: "ok",
-                totalIncome: 500,
-                totalExpense: 20,
-                })
-            })
             );
-            
         });
         
         it("should redirect on server error", async () => {

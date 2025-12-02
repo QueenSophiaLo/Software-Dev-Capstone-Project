@@ -1,11 +1,13 @@
 process.env.NODE_ENV = 'test';
 const request = require('supertest')
-const { login, signup, loginUser, signupUser } = require('../controllers/userController');
+const { login, signup, loginUser, signupUser, updateTargetSavings } = require('../controllers/userController');
 const model = require('../models/user');
 const app = require('../app.js')
+const financeData = require('../models/finance-data');
 
 
 jest.mock('../models/user');
+jest.mock('../models/finance-data');
 
 
 describe('User Controller Unit Tests', () =>{
@@ -192,6 +194,88 @@ describe('User Routers Unit Test', () =>{
     
 })
 
-describe('User Model Unit Test', () =>{
+describe('User Controller - updateTargetSavings', () => {
+    let req, res;
 
-})
+    beforeEach(() => {
+        req = {
+            body: {},
+            session: { user: 'user123' },
+            flash: jest.fn()
+        };
+        res = {
+            redirect: jest.fn()
+        };
+        jest.clearAllMocks();
+    });
+
+    it('should add a new target savings', async () => {
+        const saveMock = jest.fn().mockResolvedValue(true);
+        const fakeData = { targetSavings: [], save: saveMock };
+        financeData.findOne.mockResolvedValue(fakeData);
+
+        req.body = { action: 'add', amount: '500', category: 'vacation' };
+
+        await updateTargetSavings(req, res);
+
+        expect(fakeData.targetSavings.length).toBe(1);
+        expect(fakeData.targetSavings[0]).toEqual({ amount: 500, category: 'vacation' });
+        expect(saveMock).toHaveBeenCalled();
+        expect(req.flash).toHaveBeenCalledWith('success', 'Target added successfully!');
+        expect(res.redirect).toHaveBeenCalledWith('/users/profile');
+    });
+
+    it('should delete an existing target savings', async () => {
+        const saveMock = jest.fn().mockResolvedValue(true);
+        const fakeData = { targetSavings: [{ amount: 100, category: 'general' }], save: saveMock };
+        financeData.findOne.mockResolvedValue(fakeData);
+
+        req.body = { action: 'delete', index: 0 };
+
+        await updateTargetSavings(req, res);
+
+        expect(fakeData.targetSavings.length).toBe(0);
+        expect(saveMock).toHaveBeenCalled();
+        expect(req.flash).toHaveBeenCalledWith('success', 'Target removed successfully!');
+        expect(res.redirect).toHaveBeenCalledWith('/users/profile');
+    });
+
+    it('should handle delete with invalid index', async () => {
+        const saveMock = jest.fn().mockResolvedValue(true);
+        const fakeData = { targetSavings: [{ amount: 100, category: 'general' }], save: saveMock };
+        financeData.findOne.mockResolvedValue(fakeData);
+
+        req.body = { action: 'delete', index: 5 };
+
+        await updateTargetSavings(req, res);
+
+        expect(fakeData.targetSavings.length).toBe(1);
+        expect(req.flash).toHaveBeenCalledWith('error', 'Target not found.');
+        expect(res.redirect).toHaveBeenCalledWith('/users/profile');
+    });
+
+    it('should create new financeData if none exists and add target', async () => {
+        const saveMock = jest.fn().mockResolvedValue(true);
+        financeData.findOne.mockResolvedValue(null);
+        financeData.mockImplementation(() => ({ targetSavings: [], save: saveMock }));
+
+        req.body = { action: 'add', amount: '200', category: 'emergency' };
+
+        await updateTargetSavings(req, res);
+
+        expect(saveMock).toHaveBeenCalled();
+        expect(req.flash).toHaveBeenCalledWith('success', 'Target added successfully!');
+        expect(res.redirect).toHaveBeenCalledWith('/users/profile');
+    });
+
+    it('should handle errors and redirect', async () => {
+        financeData.findOne.mockRejectedValue(new Error('DB Error'));
+
+        req.body = { action: 'add', amount: '100', category: 'general' };
+
+        await updateTargetSavings(req, res);
+
+        expect(req.flash).toHaveBeenCalledWith('error', 'Failed to update target savings.');
+        expect(res.redirect).toHaveBeenCalledWith('/users/profile');
+    });
+});

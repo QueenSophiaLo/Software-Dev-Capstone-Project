@@ -1,2 +1,66 @@
 <h2>Welcome, <%= user.name %></h2>
-<h3>You have $<%= user.money %> USD</h3>
+<h3>You have $<%= budgetSummary.totalIncome.toFixed(2) %> USD</h3>
+
+<div class="dashboard-container">
+    <div class="mini-dashboard-widget">
+        <div class="widget-header">
+            <h3>Financial Summary</h3>
+            <span class="widget-status status-deficit"><%= budgetSummary.status %></span>
+        </div>
+        
+        <div class="widget-main-stat">
+            <span class="stat-label">Net Position</span>
+            <span class="stat-value negative">$<%= budgetSummary.surplusDeficit.toFixed(2) %></span>
+        </div>
+    
+        <div class="widget-row">
+            <div class="widget-col">
+                <span class="stat-label">Total Income</span>
+                <span class="stat-value income"> $<%= budgetSummary.totalIncome.toFixed(2) %></span>
+            </div>
+            <div class="widget-col border-left">
+                <span class="stat-label">Total Expenses</span>
+                <span class="stat-value expense"> $<%= budgetSummary.totalExpense.toFixed(2) %></span>
+            </div>
+        </div>
+        
+        <div class="widget-footer">
+            <a href="/financials/budget">View Full Budget &raquo;</a>
+        </div>
+    </div>
+    
+    <div class="target-savings-widget">
+        <h3>Savings Targets</h3>
+        <table>
+            <tr>
+                <th>Amount</th>
+                <th>Category</th>
+                <th>Action</th>
+            </tr>
+            <% data.targetSavings.forEach((t, index) => { %>
+                <tr>
+                    <td>$<%= t.amount.toFixed(2) %></td>
+                    <td><%= t.category %></td>
+                    <td>
+                        <form action="/users/profile" method="POST" style="display:inline;">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="index" value="<%= index %>">
+                            <button type="submit" class="btn-delete">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            <% }) %>
+        </table>
+    
+        <form action="/users/profile" method="POST" style="margin-top: 15px;">
+            <input type="hidden" name="action" value="add">
+            <input type="number" name="amount" placeholder="Amount" required>
+            <select name="category">
+                <option value="general">General</option>
+                <option value="vacation">Vacation</option>
+                <option value="emergency">Emergency</option>
+            </select>
+            <button type="submit">Add Target</button>
+        </form>
+    </div>    
+</div>

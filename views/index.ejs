@@ -37,33 +37,6 @@
           <li>Build and manage budgets</li>
           <li>Make smarter financial decisions</li>
         </ul>
-        
-        <div class="mini-dashboard-widget">
-            <div class="widget-header">
-                <h3>Financial Summary</h3>
-                <span class="widget-status status-deficit"><%= financialSummary.status %></span>
-            </div>
-            
-            <div class="widget-main-stat">
-                <span class="stat-label">Net Position</span>
-                <span class="stat-value negative"><%= financialSummary.netAmount %></span>
-            </div>
-
-            <div class="widget-row">
-                <div class="widget-col">
-                    <span class="stat-label">Total Income</span>
-                    <span class="stat-value income"><%= financialSummary.income %></span>
-                </div>
-                <div class="widget-col border-left">
-                    <span class="stat-label">Total Expenses</span>
-                    <span class="stat-value expense"><%= financialSummary.expenses %></span>
-                </div>
-            </div>
-            
-            <div class="widget-footer">
-                <a href="/financials/budget">View Full Budget &raquo;</a>
-            </div>
-        </div>
     <% } %>
 
   </div>

@@ -23,6 +23,8 @@ router.post('/log-in', valid.validateLogin, valid.validateResults, controller.lo
 // GET /users/profile: Render the user's profile page
 router.get('/profile', auth.isLoggedIn, controller.getProfile);
 
+router.post('/profile', auth.isLoggedIn, controller.updateTargetSavings);
+
 router.get('/profile/sandbox', auth.isLoggedIn, sandboxController.getSandbox)
 
 router.post('/profile/sandbox', sandboxController.handleActions);

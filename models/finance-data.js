@@ -8,6 +8,7 @@ const financeData = new Schema ({
     balances: {type: Array, default: []},
     transactions: {type: Array, default: []},
     notes: {type: String, default: ""},
+    targetSavings:{type: [{amount: {type: Number}, category: {type: String, default: "General"}}], default: []},
     lastUpdated: { type: Date, default: Date.now}
 }) 
 

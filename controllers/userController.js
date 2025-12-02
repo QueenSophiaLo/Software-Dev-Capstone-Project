@@ -1,4 +1,5 @@
 const model = require('../models/user');
+const financeData = require('../models/finance-data')
 
 exports.login = (req, res) =>{
     return res.render('./users/login')
@@ -246,6 +247,37 @@ exports.postSecurityAnswer = async (req, res, next) => {
     }
 };
 
+exports.updateTargetSavings = async (req, res) => {
+    try {
+        const { action, amount, category, index } = req.body;
+        let data = await financeData.findOne({ userId: req.session.user });
+        if (!data) data = new financeData({ userId: req.session.user });
+
+        if (action === 'add') {
+            data.targetSavings.push({
+                amount: Number(amount),
+                category: category || 'general'
+            });
+            req.flash('success', 'Target added successfully!');
+        } else if (action === 'delete') {
+            if (data.targetSavings[index]) {
+                data.targetSavings.splice(index, 1);
+                req.flash('success', 'Target removed successfully!');
+            } else {
+                req.flash('error', 'Target not found.');
+            }
+        }
+
+        await data.save();
+        res.redirect('/users/profile');
+
+    } catch (err) {
+        req.flash('error', 'Failed to update target savings.');
+        res.redirect('/users/profile');
+    }
+};
+
+
 /**
  * Renders the user's profile page with their stored details.
  * Requires user to be logged in.
@@ -262,10 +294,77 @@ exports.getProfile = async (req, res, next) => {
             return res.redirect('/users/log-in');
         }
 
-        // Render the profile view, passing the user object
-        res.render('./users/profile', { user: user, activeTab: 'main',
-            tabView: './tabs/main.ejs' });
-
+        financeData.findOne({ userId: req.session.user })
+            .then(data => {
+                if (!data) {
+                    req.flash("error", "No financial data found.");
+                    return res.redirect("/");
+                }
+        
+                const recentTransactions = (data.transactions[0]).slice(0, 30);
+        
+                const normalizedTxns = recentTransactions.map(t => {
+                    const rawAmount = parseFloat(t.amount);
+                    const incomingTypes = ["credit", "ach_in", "income", "deposit", "interest", "transfer_in", "zelle_in", "refund"];
+                    const outgoingTypes = ["card_payment", "ach_out", "debit", "transfer_out", "zelle_out", "fee"];
+        
+                    let amountNum = rawAmount;
+        
+                    if (incomingTypes.includes(t.type)) {
+                        amountNum = Math.abs(rawAmount);
+                    } else if (outgoingTypes.includes(t.type)) {
+                        amountNum = -Math.abs(rawAmount);
+                    }
+        
+                    return {
+                        id: t.id,
+                        date: t.date,
+                        description: t.description,
+                        category: t.details?.category || "Other",
+                        type: t.type,
+                        amount: amountNum
+                    };
+                });
+        
+                normalizedTxns.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+                const balanceEntries = (data.balances).map(b => ({
+                    id: `balance_${b.account_id}`,
+                    date: new Date().toISOString(),
+                    description: `Balance (${b.account_id.slice(-4)})`,
+                    category: "Balance",
+                    type: "balance",
+                    amount: Number(b.available)
+                }))
+                
+        
+                const normalizedWithBalance = [...normalizedTxns, ...balanceEntries];
+        
+                const totalIncome = normalizedWithBalance
+                    .filter(t => t.amount > 0)
+                    .reduce((sum, t) => sum + t.amount, 0);
+        
+                const totalExpense = normalizedWithBalance
+                    .filter(t => t.amount < 0)
+                    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+        
+                const targetExpenditure = data.targetSavings.reduce((sum, t) => sum + Number(t.amount), 0); 
+        
+                const budgetSummary = {
+                    status: targetExpenditure < totalExpense ? "overbudget" : "ok",
+                    targetExpenditure,
+                    totalExpense,
+                    totalIncome,
+                    surplusDeficit: targetExpenditure - totalExpense
+                };
+                res.render('./users/profile', { 
+                    user: user, 
+                    activeTab: 'main',
+                    tabView: './tabs/main.ejs',
+                    data,
+                    budgetSummary,
+                });
+            })
     } catch (error) {
         next(error);
     }
