@@ -126,7 +126,6 @@ exports.saveNotes = (req, res, next) => {
     });
 };
 
-
 // Show all resources (with search and filter)
 // Called by /financials/resources
 exports.resources = (req, res, next) => {

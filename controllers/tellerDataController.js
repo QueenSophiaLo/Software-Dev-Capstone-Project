@@ -47,6 +47,7 @@ exports.handleCallBack = async (req, res) => {
         const accountsData = await exports.fetchAcc(access_token);
         const bals = []
         const transacts = []
+        const targetSaves = []
 
         const userAccounts = await Promise.all(accountsData.map(async account => {
             const balance = await exports.fetchBal(account.id, access_token);
@@ -62,7 +63,7 @@ exports.handleCallBack = async (req, res) => {
             balances: bals,
             transactions: transacts,
             notes: "", 
-            targetSavings: 1000,
+            targetSavings: targetSaves,
             lastUpdated: new Date()
         })
 
