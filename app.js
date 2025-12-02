@@ -12,6 +12,7 @@ const mainRoutes = require('./routes/mainRoutes.js');
 const userRoutes = require('./routes/userRoutes.js');
 const budgetRoutes = require('./routes/budgetRoutes.js');
 const newsRoutes = require('./routes/newsRoutes.js');
+const chatRouter = require('./routes/chat.js');
 
 const app = express();
 const port = 3000;
@@ -71,6 +72,9 @@ app.use('/financials', budgetRoutes);
 
 // News routes
 app.use('/financials/news', newsRoutes);
+
+// Chatbot routes
+app.use('/api/chat', chatRouter);
 
 // --- 404 Handler ---
 app.use((req, res, next) => {

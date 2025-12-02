@@ -1054,3 +1054,149 @@ table tbody tr:hover {
     from { opacity: 0; transform: translateY(10px); }
     to   { opacity: 1; transform: translateY(0); }
 }
+
+/* === Financial Assistant Chatbot === */
+/* Ensure the chatbot container floats in the corner */
+#fin-chat-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000; /* Keep it above other elements */
+}
+
+/* Style for the floating icon/button */
+#fin-chat-toggle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #007bff; /* Primary Blue/Green (Financial look) */
+    color: white;
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+#fin-chat-toggle:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+/* Utility class to hide the window */
+.hidden {
+    display: none !important;
+}
+
+/* Style for the main chat window */
+#fin-chat-window {
+    width: 320px;
+    height: 450px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    bottom: 80px; /* Position above the toggle button */
+    right: 0;
+    overflow: hidden; /* Contains child elements within the rounded corners */
+}
+
+
+#fin-chat-header {
+    padding: 15px;
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* --- Message Area --- */
+#fin-chat-messages {
+    flex-grow: 1;
+    padding: 10px 15px;
+    overflow-y: auto;
+    background-color: #fff;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* Scrollbar styling for a cleaner look */
+#fin-chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+#fin-chat-messages::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 10px;
+}
+
+/* --- Message Bubbles --- */
+
+#fin-chat-messages p {
+    margin: 8px 0;
+    padding: 10px 12px;
+    border-radius: 18px;
+    max-width: 80%;
+    word-wrap: break-word;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.bot-message {
+    /* Message from the AI Assistant */
+    background-color: #e5e5ea; /* Light gray bubble */
+    color: #333;
+    text-align: left;
+    margin-right: auto; /* Pushes the bubble to the left */
+    border-top-left-radius: 4px; /* Slightly sharp top-left corner */
+}
+
+.user-message {
+    /* Message from the User */
+    background-color: #007bff; /* Primary color bubble */
+    color: white;
+    text-align: right;
+    margin-left: auto; /* Pushes the bubble to the right */
+    border-top-right-radius: 4px; /* Slightly sharp top-right corner */
+}
+
+/* --- Input Area --- */
+
+.chat-input-area {
+    display: flex;
+    border-top: 1px solid #eee;
+}
+
+#fin-chat-input {
+    flex-grow: 1;
+    padding: 12px;
+    border: none;
+    font-size: 14px;
+    resize: none;
+}
+#fin-chat-input:focus {
+    outline: none;
+}
+
+#fin-chat-send {
+    padding: 0 15px;
+    background-color: #4CAF50; /* Accent Green */
+    color: white;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#fin-chat-send:hover:not(:disabled) {
+    background-color: #388e3c;
+}
+
+#fin-chat-send:disabled {
+    background-color: #a5d6a7;
+    cursor: not-allowed;
+}
