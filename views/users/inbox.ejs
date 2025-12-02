@@ -15,14 +15,19 @@
 
 <%- include('../partials/header.ejs'); %>
 
-    <h1>Inbox (WIP)</h1>
-    <p> <%= user.name %> <br> <%= user.email%> <br> $<%= budgetSummary.totalIncome.toFixed(2) %> </p>
+    <h1>Send a Summary</h1>
+    <h2>This will send a summary of your financial information to your email.</h2>
     <button onclick="sendEmail('<%= user.name %>', '<%= user.email %>')">Send Email</button> 
+    <br>
   <!-- Footer -->
     <script>
-      var testmsg = "<%= budgetSummary.totalIncome.toFixed(2) %>";
+      var balance = "<%= budgetSummary.totalIncome.toFixed(2) %>";
+      var surdef = '<%= budgetSummary.surplusDeficit.toFixed(2) %>';
+      var income = '<%= budgetSummary.totalIncome.toFixed(2) %>';
+      var expenses = '<%= budgetSummary.totalExpense.toFixed(2) %>';
+
       function sendEmail(username, useremail){
-        emailjs.send("service_amu94ph","template_qb9mimk",{name: username, email: useremail, my_html: testmsg}).then(
+        emailjs.send("service_amu94ph","template_qb9mimk",{name: username, email: useremail, balance: balance, surdef: surdef, income: income, expenses: expenses}).then(
           (response) => {
             console.log('SUCCESS!', response.status, response.text);
           },
