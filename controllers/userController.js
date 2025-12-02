@@ -31,7 +31,61 @@ exports.signup = (req, res) =>{
     return res.render('./users/new')
 }
 
-// ... (Rest of AUTH LOGIC - loginUser, signupUser, logOut remains the same)
+exports.loginUser = (req, res, next)=>{
+    let email = req.body.email;
+    let password = req.body.password
+    
+    model.findOne({email: email})
+    .then(user =>{
+        if(user){
+            // Assumes a comparePassword method on the Mongoose model
+            user.comparePassword(password)
+            .then(result =>{
+                if(result){
+                    req.session.user = user._id;
+                    req.flash('success', 'You have successfully logged in')
+                    req.session.save(() =>{ return res.redirect('/') })
+                } else{
+                    req.flash('error', 'Wrong Password')
+                    req.session.save(() =>{ return res.redirect('/users/log-in') })
+                }
+            })
+            .catch(err => next(err))
+        } else{
+            req.session.save(() =>{
+                req.flash('error', 'Wrong Email')
+                return res.redirect('/users/log-in')
+            })
+        }
+    })
+    .catch(err => next(err))
+};
+
+exports.signupUser = (req, res, next) =>{
+    let user = new model(req.body);
+    user.save()
+    .then(() =>{
+        req.flash('success', 'You have successfully registered an account')
+        req.session.save(() =>{ return res.redirect('/users/log-in') })
+    })
+    .catch(err =>{
+        if(err.code === 11000){
+            req.session.save(() =>{
+                req.flash('error', 'Email must be unique')
+                return res.redirect('/users/sign-up')
+            })
+        } else{
+            next(err);
+        }
+    })
+};
+
+exports.logOut = (req, res, next) =>{
+    req.session.destroy(err =>{
+        if(err){ next(err) } else{ res.redirect('/'); }
+    })
+}
+
 
 // --- NOTIFICATION / INBOX LOGIC ---
 
@@ -64,7 +118,6 @@ exports.getNotifications = async (req, res, next) => {
             user,
             activeTab: 'notifications',
             tabView: './tabs/notifications.ejs',
-            // No need to pass a separate 'settings' object if using user.notifications directly
         });
 
     } catch (error) {
@@ -82,9 +135,7 @@ exports.updateNotifications = async (req, res, next) => {
             return res.redirect('/users/log-in');
         }
         
-        // 🚨 CRITICAL FIX: Update all fields from the combined form (notifications.ejs)
-        // Checkboxes return 'on' if checked, or undefined if unchecked.
-        
+        // CRITICAL FIX: Update all fields from the combined form (notifications.ejs)
         user.notifications.enabled = req.body.enabled === 'on';
         user.notifications.thresholdWarning = req.body.threshold === 'on';
         user.notifications.overBudgetAlert = req.body.overbudget === 'on';
@@ -102,9 +153,176 @@ exports.updateNotifications = async (req, res, next) => {
     }
 };
 
-// ... (Rest of INBOX LOGIC - getInbox, markAsRead, markAllRead remains the same)
+exports.getInbox = async (req, res, next) => {
+    try {
+        const userId = req.session.user;
+        // Assuming Notification model is available
+        const notifications = await Notification.find({ user: userId })
+                                               .sort({ createdAt: -1 })
+                                               .limit(50);
+        res.render('users/inbox', { notifications });
+    } catch (error) {
+        next(error);
+    }
+};
 
-// ... (Rest of SECURITY LOGIC - getSecuritySetup, postSecuritySetup, etc. remains the same)
+exports.markAsRead = async (req, res, next) => {
+    try {
+        const id = req.params.id;
+        // Assuming Notification model is available
+        await Notification.findByIdAndUpdate(id, { isRead: true }); 
+        res.redirect('/users/inbox');
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.markAllRead = async (req, res, next) => {
+    try {
+        const userId = req.session.user;
+        // Assuming Notification model is available
+        await Notification.updateMany({ user: userId, isRead: false }, { isRead: true });
+        res.redirect('/users/inbox');
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+// --- SECURITY LOGIC (Security Questions / Password Reset) ---
+
+exports.getSecuritySetup = (req, res) => {
+    res.render('./users/security'); 
+};
+
+exports.postSecuritySetup = async (req, res, next) => {
+    try {
+        const { question, answer } = req.body;
+        const userId = req.session.user; 
+        const user = await model.findById(userId);
+
+        if (!user) {
+            req.flash('error', 'User not found.');
+            return res.redirect('/users/profile');
+        }
+
+        user.securityQuestion = question;
+        user.securityAnswer = answer; 
+        await user.save(); 
+
+        req.flash('success', 'Security question successfully saved.');
+        res.redirect('/users/profile'); 
+    } catch (error) {
+        console.error("Error setting up security question:", error);
+        req.flash('error', 'Failed to save security question.');
+        res.redirect('/users/security-setup');
+    }
+};
+
+exports.forgotPassword = (req, res) => {
+    res.render('./users/forgot'); 
+};
+
+exports.postForgotEmail = async (req, res, next) => {
+    try {
+        const email = req.body.email;
+        const user = await model.findOne({ email });
+
+        if (!user || !user.securityQuestion1 || !user.securityQuestion2 || !user.securityQuestion3) { 
+            req.flash('error', 'Email not found or security questions are incomplete.');
+            return res.redirect('/users/forgot');
+        }
+
+        const questionMap = {
+            'pet': 'What was the name of your first pet?',
+            'city': 'In what city were you born?',
+            'mother': "What is your mother's maiden name?",
+            'school': 'What was the name of your first school?',
+            'car': 'What was the make of your first car?',
+            'food': 'What is your favorite food?',
+            'hero': 'Who was your childhood hero?',
+            'book': 'What is your favorite book?',
+            'sport': 'What is your favorite sport?'
+        };
+
+        const q1Text = questionMap[user.securityQuestion1] || user.securityQuestion1;
+        const q2Text = questionMap[user.securityQuestion2] || user.securityQuestion2;
+        const q3Text = questionMap[user.securityQuestion3] || user.securityQuestion3;
+
+        req.session.recovery = { userId: user._id, email: user.email };
+
+        res.render('./users/security-check', { 
+            questions: [q1Text, q2Text, q3Text],
+            email: user.email
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.postSecurityAnswer = async (req, res, next) => {
+    try {
+        const { answer1, answer2, answer3, newPassword } = req.body;
+        const recoveryData = req.session.recovery;
+
+        if (!recoveryData) {
+            req.flash('error', 'Session expired.');
+            return res.redirect('/users/forgot');
+        }
+
+        const user = await model.findById(recoveryData.userId);
+
+        // Assumes compareSecurityAnswer function exists on the Mongoose model
+        const valid1 = await user.compareSecurityAnswer(answer1, 1);
+        const valid2 = await user.compareSecurityAnswer(answer2, 2);
+        const valid3 = await user.compareSecurityAnswer(answer3, 3);
+
+        if (!valid1 || !valid2 || !valid3) {
+            req.flash('error', 'One or more answers were incorrect.');
+            return res.redirect('/users/forgot'); 
+        }
+        
+        user.password = newPassword; 
+        await user.save();
+        
+        req.session.recovery = null;
+        req.flash('success', 'Password reset successfully.');
+        res.redirect('/users/log-in');
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.updateTargetSavings = async (req, res) => {
+    try {
+        const { action, amount, category, index } = req.body;
+        let data = await financeData.findOne({ userId: req.session.user });
+        if (!data) data = new financeData({ userId: req.session.user });
+
+        if (action === 'add') {
+            data.targetSavings.push({
+                amount: Number(amount),
+                category: category || 'general'
+            });
+            req.flash('success', 'Target added successfully!');
+        } else if (action === 'delete') {
+            if (data.targetSavings[index]) {
+                data.targetSavings.splice(index, 1);
+                req.flash('success', 'Target removed successfully!');
+            } else {
+                req.flash('error', 'Target not found.');
+            }
+        }
+
+        await data.save();
+        res.redirect('/users/profile');
+
+    } catch (err) {
+        req.flash('error', 'Failed to update target savings.');
+        res.redirect('/users/profile');
+    }
+};
 
 // --- PROFILE LOGIC ---
 
@@ -129,7 +347,6 @@ exports.getProfile = async (req, res, next) => {
         console.log("3. Financial Data Found:", data ? "YES" : "NO");
 
         // --- SCENARIO A: NO FINANCIAL DATA YET (New User) ---
-        // Provide a default budgetSummary so the main.ejs view doesn't crash
         let budgetSummary = {
             status: "ok",
             targetExpenditure: 0,
@@ -145,16 +362,11 @@ exports.getProfile = async (req, res, next) => {
             console.log("4. Data found. Processing transactions...");
 
             let recentTransactions = [];
-            // Assuming data.transactions is an array of transactions
             if (data.transactions && data.transactions.length > 0) {
                 recentTransactions = data.transactions.slice(0, 30);
             }
 
-            // NOTE: The transaction mapping/normalization logic is left as is, assuming it handles mock data structure.
-
-            // The rest of the income/expense calculation logic remains the same.
             const normalizedTxns = recentTransactions.map(t => {
-                 // ... (Your existing normalization logic)
                  const rawAmount = parseFloat(t.amount);
                  const incomingTypes = ["credit", "ach_in", "income", "deposit", "interest", "transfer_in", "zelle_in", "refund"];
                  const outgoingTypes = ["card_payment", "ach_out", "debit", "transfer_out", "zelle_out", "fee"];
@@ -205,7 +417,7 @@ exports.getProfile = async (req, res, next) => {
                 targetExpenditure,
                 totalExpense,
                 totalIncome,
-                surplusDeficit: totalIncome - totalExpense // FIX: Surplus is income minus expense, not target minus expense
+                surplusDeficit: totalIncome - totalExpense
             };
             console.log("5. Rendering Profile with Data.");
         }
@@ -226,7 +438,56 @@ exports.getProfile = async (req, res, next) => {
     }
 };
 
-// ... (Rest of PROFILE LOGIC - getSecurity, updateProfile, updateTargetSavings remains the same)
+exports.getSecurity = async (req, res) => {
+    const user = await model.findById(req.session.user);
+    res.render('./users/profile', {
+        user,
+        activeTab: 'security',
+        tabView: './tabs/securityQuestions'
+    });
+};
+
+exports.updateProfile = async (req, res, next) => {
+    try {
+        const userId = req.session.user;
+        const body = req.body; 
+        const user = await model.findById(userId);
+
+        if (!user) {
+            req.flash('error', 'Update failed: User not found.');
+            return res.redirect('/users/log-in');
+        }
+
+        user.name = body.name;
+        user.email = body.email;
+
+        if (body.securityQuestion1 && body.securityAnswer1) {
+            user.securityQuestion1 = body.securityQuestion1;
+            // NOTE: Ideally, security answers should be hashed before saving!
+            user.securityAnswer1 = body.securityAnswer1; 
+        }
+        if (body.securityQuestion2 && body.securityAnswer2) {
+            user.securityQuestion2 = body.securityQuestion2;
+            user.securityAnswer2 = body.securityAnswer2; 
+        }
+        if (body.securityQuestion3 && body.securityAnswer3) {
+            user.securityQuestion3 = body.securityQuestion3;
+            user.securityAnswer3 = body.securityAnswer3; 
+        }
+        
+        await user.save();
+        req.flash('success', 'Profile and security details updated successfully.');
+        res.redirect('/users/profile/securityQuestions'); // Redirect back to security tab
+
+    } catch (error) {
+        if (error.code === 11000) {
+            req.flash('error', 'Update failed: That email is already in use.');
+            return res.redirect('/users/profile/securityQuestions');
+        }
+        next(error);
+    }
+};
+
 
 // --- MOCK LINK BANK ACCOUNT LOGIC ---
 
@@ -241,7 +502,6 @@ exports.getLinkBank = async (req, res, next) => {
             hasBankConnected = true;
 
             // MOCK STEP: Return the predefined mock data
-            // This ensures the 'linkBank.ejs' file displays the mock accounts.
             accounts = MOCK_ACCOUNTS_DATA; 
         }
 

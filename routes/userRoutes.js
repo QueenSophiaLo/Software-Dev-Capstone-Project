@@ -10,6 +10,10 @@ const router = express.Router();
 // GET /sign-up: send sign-up page to client
 router.get('/sign-up', controller.signup);
 
+console.log('Type of validatorSignUp:', typeof valid.validatorSignUp);
+console.log('Type of validateResults:', typeof valid.validateResults);
+console.log('Type of signupUser:', typeof controller.signupUser);
+
 // POST /sign-up: create a new user
 router.post('/sign-up', valid.validatorSignUp, valid.validateResults, controller.signupUser);
 
