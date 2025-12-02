@@ -18,6 +18,7 @@
     "test": "cross-env NODE_ENV=test jest"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "@google/genai": "^1.30.0",
     "@maxint/teller": "^0.2.0",
     "auth": "^1.2.3",

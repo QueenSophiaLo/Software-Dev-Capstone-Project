@@ -3,12 +3,38 @@
 <head>
   <title>FIN: Inbox</title>
   <!-- Header -->
-   <script src="/js/sendEmail.js"></script>
+  <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+  </script>
+  <script type="text/javascript">
+   (function(){
+      emailjs.init({
+        publicKey: "1iI-fiqWahTufDsOm",
+      });
+   })();
+  </script>
+
 <%- include('../partials/header.ejs'); %>
 
     <h1>Inbox (WIP)</h1>
-    <button onclick="sendEmail('khalonki@charlotte.edu')">Send Email</button>
+    <button onclick="sendEmail()">Send Email</button> 
   <!-- Footer -->
-   <script type='module' src="/js/sendEmail.js"></script>
+    <script>
+      var templateParams = {
+        name: 'test',
+        email: 'rissa.halonkin@gmail.com',
+      };
+      function sendEmail(){
+        emailjs.send('service_amu94ph','template_qb9mimk', templateParams).then(
+          (response) => {
+            console.log('SUCCESS!', response.status, response.text);
+          },
+          (error) => {
+            console.log('FAILED...', error);
+          },
+        );
+      }
+      
+    </script>
   <%- include('../partials/footer.ejs')%>
 </html>
