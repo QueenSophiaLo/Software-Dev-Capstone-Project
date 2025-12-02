@@ -13,6 +13,7 @@ const userRoutes = require('./routes/userRoutes.js');
 const budgetRoutes = require('./routes/budgetRoutes.js');
 const newsRoutes = require('./routes/newsRoutes.js');
 const chatRouter = require('./routes/chat.js');
+const sandboxRoutes = require('./routes/sandboxRoutes.js'); 
 
 const app = express();
 const port = 3000;
@@ -24,13 +25,13 @@ app.set('view engine', 'ejs');
 
 // --- Database & Server Startup ---
 if (process.env.NODE_ENV !== 'test') {
-  mongoose.connect(process.env.mongo_uri2)
-    .then(() => {
-      app.listen(port, host, () => {
-        console.log(`Server is running on http://${host}:${port}`);
-      });
-    })
-    .catch(err => console.log(err.message));
+  mongoose.connect(process.env.mongo_uri2)
+    .then(() => {
+      app.listen(port, host, () => {
+        console.log(`Server is running on http://${host}:${port}`);
+      });
+    })
+    .catch(err => console.log(err.message));
 }
 
 // --- Middleware ---
@@ -51,11 +52,13 @@ app.use(session({
 
 app.use(flash());
 
-// --- Global Template Variables ---
+// --- Global Template Variables (Crucial for Layouts) ---
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
   res.locals.successMessages = req.flash('success');
   res.locals.errorMessages = req.flash('error');
+  // --- NEW: Set current URL path for active navigation highlighting ---
+  res.locals.currentUrl = req.path;
   next();
 });
 
@@ -76,6 +79,9 @@ app.use('/financials/news', newsRoutes);
 // Chatbot routes
 app.use('/api/chat', chatRouter);
 
+// Sandbox routes
+app.use('/', sandboxRoutes);
+
 // --- 404 Handler ---
 app.use((req, res, next) => {
   const err = new Error('The server cannot locate ' + req.url);
@@ -89,9 +95,9 @@ app.use((err, req, res, next) => {
   if (!err.status) {
     err.status = 500;
     err.message = "Internal Server Error";
-  }
-  res.status(err.status);
-  res.render('error', { error: err });
+ }
+ res.status(err.status);
+ res.render('error', { error: err });
 });
 
 module.exports = app;

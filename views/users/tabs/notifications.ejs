@@ -1,4 +1,5 @@
 <h2>Notification Settings</h2>
+<<<<<<< Updated upstream
 <p>Manage how and when you receive alerts about your budget.</p>
 
 <form action="/users/profile/notifications" method="POST" class="profile-form">
@@ -61,3 +62,26 @@
     input:checked + .slider:before { transform: translateX(26px); }
     .switch-container { display: flex; align-items: center; justify-content: space-between; max-width: 400px; }
 </style>
+=======
+<p>Manage the alerts you receive about your financial goals and activity.</p>
+
+<form action="/users/profile/notifications" method="POST" class="notification-form">
+    
+    <h3>Savings Goal Alerts</h3>
+
+    <div class="form-group">
+        <label for="savingsGoalNotif">
+            Send alert when close to achieving a set savings goal.
+        </label>
+        <input 
+            type="checkbox" 
+            id="savingsGoalNotif" 
+            name="savingsGoalNotif"
+            <%= settings.savingsGoal ? 'checked' : '' %> 
+        >
+        <p class="description">You will receive a notification when your progress on a target savings goal reaches 90%.</p>
+    </div>
+
+    <button type="submit" class="reg-button">Save Notification Settings</button>
+</form>
+>>>>>>> Stashed changes

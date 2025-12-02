@@ -1,5 +1,4 @@
-    <!-- Font Awesome Free CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/css/style.css">
@@ -11,38 +10,36 @@
   </a>
 
   <ul class="navbar-nav">
-    <!-- About Us Dropdown -->
     <li class="nav-item dropdown">
       <a class="nav-link" href="#">About Us &#9662;</a>
       <ul class="dropdown-menu">
-        <li><a class="dropdown-link" href="/meet-the-team">Meet the Team</a></li>
-        <li><a class="dropdown-link" href="/contact-us">Contact Us</a></li>
+        <li class="<%= locals.currentUrl === '/meet-the-team' ? 'active' : '' %>"><a class="dropdown-link" href="/meet-the-team">Meet the Team</a></li>
+        <li class="<%= locals.currentUrl === '/contact-us' ? 'active' : '' %>"><a class="dropdown-link" href="/contact-us">Contact Us</a></li>
       </ul>
     </li>
 
-    <!-- Financial Services Dropdown -->
-    
-    <!--if a user is logged in-->
     <%if(user){%>
     <li class="nav-item dropdown">
       <a class="nav-link" href="#">Financial Services &#9662;</a>
       <ul class="dropdown-menu">
-        <li><a class="dropdown-link" href="/financials/add-bank">Link Bank Account</a></li>
-        <li><a class="dropdown-link" href="/financials/budget">Budget Sheet</a></li>
-        <li><a class="dropdown-link" href="/financials/resources">Financial Resources</a></li>
-        <li><a class="dropdown-link" href="/financials/news">Financial News</a></li>
+        <li class="<%= locals.currentUrl === '/financials/add-bank' ? 'active' : '' %>"><a class="dropdown-link" href="/financials/add-bank">Link Bank Account</a></li>
+        <li class="<%= locals.currentUrl === '/financials/budget' ? 'active' : '' %>"><a class="dropdown-link" href="/financials/budget">Budget Sheet</a></li>
+        
+        <li class="<%= locals.currentUrl === '/sandbox' ? 'active' : '' %>"><a class="dropdown-link" href="/sandbox">Sandbox Tool</a></li>
+        
+        <li class="<%= locals.currentUrl === '/financials/resources' ? 'active' : '' %>"><a class="dropdown-link" href="/financials/resources">Financial Resources</a></li>
+        <li class="<%= locals.currentUrl === '/financials/news' ? 'active' : '' %>"><a class="dropdown-link" href="/financials/news">Financial News</a></li>
       </ul>
     </li>
     <%}%>
 
-    <!--if a user is logged out-->
     <%if(!user){ %>
       <li class="nav-item"><a class="nav-link" href="/users/sign-up">Sign Up</a></li>
       <li class="nav-item"><a class="nav-link" href="/users/log-in">Log In</a></li>
     <%} 
     else{%>
-      <li class="nav-item"><a class="nav-link" href="/users/profile">Profile</a></li>
-      <li class="nav-item"><a class="nav-link" href="/users/inbox">Inbox</a></li>
+      <li class="nav-item <%= locals.currentUrl === '/users/profile' ? 'active' : '' %>"><a class="nav-link" href="/users/profile">Profile</a></li>
+      <li class="nav-item <%= locals.currentUrl === '/users/inbox' ? 'active' : '' %>"><a class="nav-link" href="/users/inbox">Inbox</a></li>
       <li class="nav-item"><a class="nav-link" href="/users/logout">Log Out</a></li>
     <%}%>
   </ul>
@@ -51,13 +48,13 @@
 <div class = "errorcontent">
   <%if(errorMessages.length > 0){
       errorMessages.forEach(message => {%>
-              <div class="error"> <%= message %></div>
+            <div class="error"> <%= message %></div>
       <%})
   } %>
 
   <%if(successMessages.length > 0){
       successMessages.forEach(message => {%>
-              <div class="success"> <%= message %></div>
+            <div class="success"> <%= message %></div>
       <%})
   } %>
 </div>

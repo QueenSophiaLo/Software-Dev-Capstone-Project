@@ -18,6 +18,7 @@ const userSchema = new Schema({
     securityQuestion3: { type: String, trim: true },
     securityAnswer3: { type: String, trim: true },
 
+<<<<<<< Updated upstream
     // Notification Preferences
     notifications: {
         enabled: { type: Boolean, default: false }, // Master toggle
@@ -26,6 +27,10 @@ const userSchema = new Schema({
         weeklySummary: { type: Boolean, default: false },
         monthlySummary: { type: Boolean, default: false }
     }
+=======
+    savingsGoalNotifEnabled: { type: Boolean, default: false },
+    tellerEnrollmentId: { type: String, default: null },
+>>>>>>> Stashed changes
 });
 
 userSchema.pre('save', function(next) {

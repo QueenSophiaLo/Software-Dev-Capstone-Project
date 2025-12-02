@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Sandbox | F.I.N</title>
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <style>
+        .sandbox-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .sandbox-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; margin-top: 20px; }
+        .control-card { background: #f8f9fa; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .control-group { margin-bottom: 20px; }
+        .control-group label { display: block; font-weight: bold; margin-bottom: 5px; }
+        .control-group input[type=range] { width: 100%; }
+        .val-display { font-size: 1.2rem; color: #2ecc71; font-weight: bold; }
+        .chart-container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); height: 500px; }
+        
+        @media (max-width: 768px) { .sandbox-grid { grid-template-columns: 1fr; } }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+    <%- include('../partials/header') %>
+
+    <div class="sandbox-container">
+        <h1>💰 Financial Scenario Planner</h1>
+        <p>Adjust the sliders to see how your future finances change in real-time.</p>
+
+        <div class="sandbox-grid">
+            
+            <div class="control-card">
+                <form id="sandbox-form">
+                    
+                    <% if (locals.csrfToken) { %>
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <% } %>
+
+                    <h3>Adjust Scenarios</h3>
+
+                    <div class="control-group">
+                        <label for="monthlyContribution">Monthly Contribution</label>
+                        <input 
+                            type="range" 
+                            id="monthlyContribution" 
+                            name="monthlyContribution" 
+                            min="0" 
+                            max="5000" 
+                            step="50" 
+                            value="<%= initialInputs.monthlyContribution %>" 
+                            oninput="updateDisplay('m-val', '$' + this.value)"
+                            onchange="updateChart()">
+                        <div class="val-display" id="m-val">$<%= initialInputs.monthlyContribution %></div>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="annualReturn">Annual Return (Interest)</label>
+                        <input 
+                            type="range" 
+                            id="annualReturn" 
+                            name="annualReturn" 
+                            min="0" 
+                            max="15" 
+                            step="0.5" 
+                            value="<%= initialInputs.annualReturn %>" 
+                            oninput="updateDisplay('a-val', this.value + '%')"
+                            onchange="updateChart()">
+                        <div class="val-display" id="a-val"><%= initialInputs.annualReturn %> %</div>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="yearsToProject">Duration (Years)</label>
+                        <input 
+                            type="range" 
+                            id="yearsToProject" 
+                            name="yearsToProject" 
+                            min="1" 
+                            max="50" 
+                            step="1" 
+                            value="<%= initialInputs.yearsToProject %>" 
+                            oninput="updateDisplay('y-val', this.value + ' Years')"
+                            onchange="updateChart()">
+                        <div class="val-display" id="y-val"><%= initialInputs.yearsToProject %> Years</div>
+                    </div>
+
+                </form>
+                
+                <hr>
+                <div id="summary-metrics">
+                    <p>Starting Balance: <strong>$<%= baseData.initialBalance.toLocaleString() %></strong></p>
+                    <p id="final-balance">Projected Final: Calculating...</p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="projectionChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script id="payload-projection" type="application/json">
+        <%- JSON.stringify(defaultProjection) %>
+    </script>
+    
+    <script id="payload-base-data" type="application/json">
+        <%- JSON.stringify(baseData) %>
+    </script>
+
+    <script>
+        // 1. SAFELY IMPORT SERVER DATA FROM JSON CONTAINERS
+        // We parse the text content of the scripts above. No EJS tags here!
+        const defaultProjectionData = JSON.parse(document.getElementById('payload-projection').textContent);
+        const initialBaseData = JSON.parse(document.getElementById('payload-base-data').textContent);
+        
+        let chartInstance = null;
+
+        // Helper for updating text next to sliders
+        function updateDisplay(id, value) {
+            document.getElementById(id).innerText = value;
+        }
+
+        // 2. PREPARE CHART DATA
+        function prepareChartData(projection) {
+            return {
+                labels: projection.map(item => `Year ${item.year}`),
+                datasets: [{
+                    label: 'Projected Balance',
+                    data: projection.map(item => item.balance),
+                    borderColor: '#2ecc71', // Green line
+                    backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4, // Smooth curves
+                    fill: true,
+                    pointRadius: 0,
+                    pointHitRadius: 10
+                }]
+            };
+        }
+
+        // 3. INITIALIZE CHART
+        function initializeChart() {
+            const ctx = document.getElementById('projectionChart').getContext('2d');
+            const config = {
+                type: 'line',
+                data: prepareChartData(defaultProjectionData),
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f0f0f0' },
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: true },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '$' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            chartInstance = new Chart(ctx, config);
+            
+            // Set initial summary text
+            const finalVal = defaultProjectionData[defaultProjectionData.length - 1].balance;
+            document.getElementById('final-balance').innerHTML = `Projected Final: <strong>$${finalVal.toLocaleString()}</strong>`;
+        }
+
+        // 4. AJAX UPDATE FUNCTION
+        async function updateChart() {
+            // Collect Form Data
+            const form = document.getElementById('sandbox-form');
+            const formData = new FormData(form);
+            const inputs = {};
+            
+            // Convert strings to numbers
+            for (let [key, value] of formData.entries()) {
+                if (key !== '_csrf') {
+                    inputs[key] = parseFloat(value);
+                } else {
+                    inputs[key] = value; // Keep CSRF as string
+                }
+            }
+            
+            // Handle CSRF for headers if it exists
+            const csrfToken = inputs['_csrf'];
+            delete inputs['_csrf'];
+
+            try {
+                // Send Request
+                const headers = { 'Content-Type': 'application/json' };
+                if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
+
+                const response = await fetch('/api/sandbox/calculate', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(inputs),
+                });
+
+                if (!response.ok) throw new Error('Calculation failed');
+
+                const data = await response.json();
+                
+                // Update Chart
+                if (chartInstance) {
+                    const newData = prepareChartData(data.projection);
+                    chartInstance.data.labels = newData.labels;
+                    chartInstance.data.datasets[0].data = newData.datasets[0].data;
+                    chartInstance.update();
+                }
+
+                // Update Summary Text
+                const finalVal = data.projection[data.projection.length - 1].balance;
+                document.getElementById('final-balance').innerHTML = `Projected Final: <strong>$${finalVal.toLocaleString()}</strong>`;
+
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
+
+        // Run on load
+        document.addEventListener('DOMContentLoaded', initializeChart);
+    </script>
+
+</body>
+</html>

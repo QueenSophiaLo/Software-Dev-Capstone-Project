@@ -1,7 +1,20 @@
 const model = require('../models/user');
+<<<<<<< Updated upstream
 const financeData = require('../models/finance-data');
 // ✅ FIXED: Added missing import for Notifications
 const Notification = require('../models/notification');
+=======
+const financeData = require('../models/finance-data')
+const Teller = require('teller'); // Assuming you use a Teller client library
+
+
+const tellerClient = new Teller.Client({
+    applicationId: process.env.TELLER_APP_ID,     
+    username: process.env.TELLER_USERNAME,        
+    password: process.env.TELLER_PASSWORD,        
+    environment: 'sandbox'                        
+});
+>>>>>>> Stashed changes
 
 exports.login = (req, res) =>{
     return res.render('./users/login')
@@ -287,15 +300,27 @@ exports.updateTargetSavings = async (req, res) => {
 // --- PROFILE LOGIC ---
 
 exports.getProfile = async (req, res, next) => {
+    console.log("--- DEBUG: Entering getProfile Controller ---");
     try {
         const userId = req.session.user;
+<<<<<<< Updated upstream
         const user = await model.findById(userId).select('-password -securityAnswer'); 
 
+=======
+        console.log("1. Session User ID:", userId);
+
+        // 1. Fetch User
+        const user = await model.findById(userId).select('-password -securityAnswer');
+        
+>>>>>>> Stashed changes
         if (!user) {
+            console.log("2. Error: User not found in DB.");
             req.flash('error', 'User not found or session expired.');
             return res.redirect('/users/log-in');
         }
+        console.log("2. User found:", user.email);
 
+<<<<<<< Updated upstream
         // ✅ FIXED: Handle Missing Financial Data Gracefully
         financeData.findOne({ userId: req.session.user })
             .then(data => {
@@ -340,7 +365,106 @@ exports.getProfile = async (req, res, next) => {
                     budgetSummary: budgetSummary // Pass null if no data
                 });
             })
+=======
+        // 2. Fetch Financial Data
+        const data = await financeData.findOne({ userId: req.session.user });
+        console.log("3. Financial Data Found:", data ? "YES" : "NO");
+
+        // --- SCENARIO A: NO FINANCIAL DATA YET (New User) ---
+        if (!data) {
+            console.log("4. No data found. Rendering Empty Profile (Safe Mode).");
+            
+            // RENDER THE PAGE. Do NOT redirect.
+            return res.render('./users/profile', { 
+                user: user, 
+                activeTab: 'main',
+                tabView: './tabs/main.ejs',
+                data: null, 
+                budgetSummary: {
+                    status: "ok",
+                    targetExpenditure: 0,
+                    totalExpense: 0,
+                    totalIncome: 0,
+                    surplusDeficit: 0
+                }
+            });
+        }
+
+        // --- SCENARIO B: DATA EXISTS (Existing User) ---
+        console.log("4. Data found. Processing transactions...");
+
+        let recentTransactions = [];
+        // Safety check to ensure transactions array exists
+        if (data.transactions && data.transactions.length > 0 && Array.isArray(data.transactions[0])) {
+            recentTransactions = (data.transactions[0]).slice(0, 30);
+        }
+
+        const normalizedTxns = recentTransactions.map(t => {
+            const rawAmount = parseFloat(t.amount);
+            const incomingTypes = ["credit", "ach_in", "income", "deposit", "interest", "transfer_in", "zelle_in", "refund"];
+            const outgoingTypes = ["card_payment", "ach_out", "debit", "transfer_out", "zelle_out", "fee"];
+
+            let amountNum = rawAmount;
+
+            if (incomingTypes.includes(t.type)) {
+                amountNum = Math.abs(rawAmount);
+            } else if (outgoingTypes.includes(t.type)) {
+                amountNum = -Math.abs(rawAmount);
+            }
+
+            return {
+                id: t.id,
+                date: t.date,
+                description: t.description,
+                category: t.details?.category || "Other",
+                type: t.type,
+                amount: amountNum
+            };
+        });
+
+        normalizedTxns.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        const balanceEntries = (data.balances || []).map(b => ({
+            id: `balance_${b.account_id}`,
+            date: new Date().toISOString(),
+            description: `Balance (${b.account_id.slice(-4)})`,
+            category: "Balance",
+            type: "balance",
+            amount: Number(b.available)
+        }));
+
+        const normalizedWithBalance = [...normalizedTxns, ...balanceEntries];
+
+        const totalIncome = normalizedWithBalance
+            .filter(t => t.amount > 0)
+            .reduce((sum, t) => sum + t.amount, 0);
+
+        const totalExpense = normalizedWithBalance
+            .filter(t => t.amount < 0)
+            .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+        const targetExpenditure = (data.targetSavings || []).reduce((sum, t) => sum + Number(t.amount), 0); 
+
+        const budgetSummary = {
+            status: targetExpenditure < totalExpense ? "overbudget" : "ok",
+            targetExpenditure,
+            totalExpense,
+            totalIncome,
+            surplusDeficit: targetExpenditure - totalExpense
+        };
+
+        console.log("5. Rendering Profile with Data.");
+        res.render('./users/profile', { 
+            user: user, 
+            activeTab: 'main',
+            tabView: './tabs/main.ejs',
+            data,
+            budgetSummary,
+        });
+
+>>>>>>> Stashed changes
     } catch (error) {
+        console.error("CRITICAL ERROR in getProfile:", error);
         next(error);
     }
 };
@@ -349,7 +473,11 @@ exports.getSecurity = async (req, res) => {
     const user = await model.findById(req.session.user);
     res.render('./users/profile', {
         user,
+<<<<<<< Updated upstream
         activeTab: 'security', // Fixed tab name
+=======
+        activeTab: 'security',
+>>>>>>> Stashed changes
         tabView: './tabs/securityQuestions'
     });
 };
@@ -391,5 +519,100 @@ exports.updateProfile = async (req, res, next) => {
             return res.redirect('/users/profile');
         }
         next(error);
+    }
+};
+
+/**
+ * Renders the notifications settings page.
+ */
+exports.getNotifications = async (req, res, next) => {
+    try {
+        const userId = req.session.user;
+        const user = await model.findById(userId); // Assuming model is your user model
+
+        if (!user) {
+            req.flash('error', 'User not found.');
+            return res.redirect('/users/log-in');
+        }
+
+        // We will assume the user model has a field called savingsGoalNotifEnabled
+        const settings = {
+            savingsGoal: user.savingsGoalNotifEnabled || false 
+        };
+
+        res.render('./users/profile', {
+            user,
+            activeTab: 'notifications', // New activeTab key
+            tabView: './tabs/notifications.ejs', // New view file
+            settings // Pass settings to the view
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * Handles saving updates to notification settings.
+ */
+exports.updateNotifications = async (req, res, next) => {
+    try {
+        const userId = req.session.user;
+        const user = await model.findById(userId);
+
+        if (!user) {
+            req.flash('error', 'Update failed: User not found.');
+            return res.redirect('/users/log-in');
+        }
+        
+        // The checkbox value will be 'on' if checked, or undefined if unchecked.
+        const isEnabled = req.body.savingsGoalNotif === 'on';
+
+        // Update the user document
+        user.savingsGoalNotifEnabled = isEnabled;
+        await user.save();
+
+        req.flash('success', 'Notification settings updated successfully.');
+        res.redirect('/users/profile/notifications');
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.getLinkBank = async (req, res, next) => {
+    try {
+        const user = await model.findById(req.session.user);
+        let accounts = [];
+        let hasBankConnected = false;
+
+        // 1. Check if the user has a Teller Enrollment ID stored
+        if (user.tellerEnrollmentId) {
+            hasBankConnected = true;
+
+            // 2. Fetch Accounts from Teller using the stored ID
+            const response = await tellerClient.accounts.list(user.tellerEnrollmentId);
+            
+            // The Teller API returns an array of accounts (e.g., checking, savings)
+            accounts = response.data.accounts; 
+            
+            // You may also want to fetch balances/transactions here
+        }
+
+        res.render('./users/profile', {
+            user,
+            activeTab: 'linkBank', 
+            tabView: './tabs/linkBank.ejs',
+            accounts, // Pass the fetched data to the view
+            hasBankConnected // A flag to control the view rendering
+        });
+
+    } catch (error) {
+        // Handle Teller API errors (e.g., enrollment expired)
+        req.flash('error', 'Error fetching bank data. Please try re-linking your account.');
+        // If the API call fails, clear the enrollment ID
+        // user.tellerEnrollmentId = null; 
+        // await user.save();
+        next(error); 
     }
 };

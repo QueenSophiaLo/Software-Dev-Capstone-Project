@@ -1,0 +1,117 @@
+<h2>Bank Account Connection</h2>
+
+<div class="bank-page-layout">
+    
+    <div class="bank-link-sidebar">
+        <% if (!hasBankConnected) { %>
+            <p>Connect your financial institution to start tracking.</p>
+            <button id="teller-connect-button" class="btn-primary">
+                Link Bank Account
+            </button>
+        <% } else { %>
+            <p>✅ **Connected!**</p>
+            <p class="description">Your accounts are currently connected and data is being fetched from the Teller Sandbox.</p>
+            <button class="btn-secondary">Re-Link/Update Account</button>
+        <% } %>
+    </div>
+
+    <div class="bank-data-display">
+        <% if (hasBankConnected && accounts && accounts.length > 0) { %>
+            <h3>Mock Accounts from Teller Sandbox</h3>
+            
+            <% accounts.forEach(account => { %>
+                <div class="account-card">
+                    <h4><%= account.name %> (<%= account.type %>)</h4>
+                    <p>Institution: **<%= account.institution.name %>**</p>
+                    <p>Available Balance: **$<%= account.balance.available.toFixed(2) %>**</p>
+                    <p>Account ID: <code><%= account.id %></code></p>
+                    <button class="btn-data-fetch">Fetch Transactions</button>
+                </div>
+            <% }) %>
+
+        <% } else if (hasBankConnected) { %>
+            <h3>Connection Status</h3>
+            <p>Connected, but no accounts found yet. Try re-linking.</p>
+        <% } else { %>
+            <h3>Welcome</h3>
+            <p>Link a bank account to view your financial profile. Use Teller Sandbox credentials for development.</p>
+        <% } %>
+    </div>
+
+</div>
+
+<script>
+    // Ensure the TellerConnect SDK is loaded (You should place this in footer.ejs for production)
+    if (typeof TellerConnect === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://teller.io/connect/v1.js';
+        document.body.appendChild(script);
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const connectButton = document.getElementById('teller-connect-button');
+        
+        if (connectButton) {
+            
+            function onSuccess(enrollment) {
+                const enrollmentId = enrollment.id;
+                console.log("Teller connection successful! Enrollment ID:", enrollmentId);
+                
+                // Get CSRF Token if applicable (essential for security in POST requests)
+                // You must ensure this input field is present in your profile.ejs or header.ejs
+                const csrfToken = document.querySelector('input[name="_csrf"]')?.value || ''; 
+                
+                // Send the enrollment_id to your server's callback route
+                fetch('/users/profile/linkBank/callback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // Include CSRF Token if you are using Express Session or similar middleware
+                        <% /* if (locals.csrfToken) { */ %>
+                            // 'X-CSRF-Token': csrfToken, 
+                        <% /* } */ %>
+                    },
+                    body: JSON.stringify({ enrollment_id: enrollmentId })
+                })
+                .then(response => {
+                    // Check for a 200/300 status code
+                    if (!response.ok) {
+                        throw new Error('Server failed to save the connection details.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Server response:", data);
+                    // Redirect to refresh the page and show the new data
+                    window.location.href = '/users/profile/linkBank'; 
+                })
+                .catch(error => {
+                    console.error('Error sending enrollment ID to server:', error);
+                    alert('Failed to save bank connection details. Check server logs.');
+                });
+            }
+
+            // Initialize TellerConnect
+            const tellerConnect = TellerConnect.setup({
+                // REPLACE THIS WITH YOUR ACTUAL TELLER DEVELOPMENT APPLICATION ID
+                applicationId: 'app_plo31u3d20bf7jh9ba000', 
+                environment: 'sandbox', // Crucial for testing!
+                
+                onSuccess: onSuccess,
+                onExit: function() {
+                    console.log('TellerConnect closed by user.');
+                },
+                onError: function(error) {
+                    console.error('TellerConnect error:', error.message);
+                    alert('Connection Error: ' + error.message);
+                }
+            });
+
+            // Attach the open function to the button click
+            connectButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                tellerConnect.open();
+            });
+        }
+    });
+</script>

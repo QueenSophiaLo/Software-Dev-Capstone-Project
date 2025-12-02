@@ -23,15 +23,34 @@ router.post('/log-in', valid.validateLogin, valid.validateResults, controller.lo
 // GET /users/profile: Render the user's profile page
 router.get('/profile', auth.isLoggedIn, controller.getProfile);
 
+// POST /users/profile: Handle adding/deleting savings targets
 router.post('/profile', auth.isLoggedIn, controller.updateTargetSavings);
 
-router.get('/profile/sandbox', auth.isLoggedIn, sandboxController.getSandbox)
+// --- Profile Sub-pages ---
 
+// NEW ROUTES FOR LINK BANK ACCOUNT
+// GET /users/profile/linkBank: Render the Link Bank Account tab
+router.get('/profile/linkBank', auth.isLoggedIn, controller.getLinkBank); 
+
+// POST /users/profile/linkBank/callback: Handle the Teller Link success callback (receiving enrollment_id)
+router.post('/profile/linkBank/callback', auth.isLoggedIn, controller.handleTellerCallback); 
+
+// GET /users/profile/notifications: Render the notifications settings tab
+router.get('/profile/notifications', auth.isLoggedIn, controller.getNotifications);
+
+// POST /users/profile/notifications: Handle saving notification settings
+router.post('/profile/notifications', auth.isLoggedIn, controller.updateNotifications);
+
+// GET /users/profile/sandbox: Render the sandbox mode
+router.get('/profile/sandbox', auth.isLoggedIn, sandboxController.getSandbox);
+
+// POST /users/profile/sandbox: Handle sandbox form actions
 router.post('/profile/sandbox', sandboxController.handleActions);
 
-router.get('/profile/securityQuestions', auth.isLoggedIn, controller.getSecurity)
+// GET /users/profile/securityQuestions: Render the profile configurations tab (formerly security questions)
+router.get('/profile/securityQuestions', auth.isLoggedIn, controller.getSecurity);
 
-// POST /users/profile: Handle updates to user details and security questions
+// POST /users/profile/security: Handle updates to user details and security questions
 router.post('/profile/security', auth.isLoggedIn, controller.updateProfile);
 
 // Notification Settings Tab
@@ -47,16 +66,11 @@ router.post('/inbox/mark-all-read', auth.isLoggedIn, controller.markAllRead);
 //GET /logout: logout current user session
 router.get('/logout', auth.isLoggedIn, controller.logOut);
 
-// GET /users/security-setup: Render the setup form
-router.get('/security-setup', auth.isLoggedIn, controller.getSecuritySetup);
-
-// POST /users/security-setup: Handle saving the question and answer
-router.post('/security-setup', auth.isLoggedIn, controller.postSecuritySetup);
-
-// --- Security Question Setup Routes (Requires Login) ---
+// --- One-Time Security Question Setup Routes (Requires Login) ---
 router.get('/security-setup', auth.isLoggedIn, controller.getSecuritySetup);
 
 router.post('/security-setup', auth.isLoggedIn, controller.postSecuritySetup);
+
 
 // --- Password Recovery Routes (Does NOT Require Login) ---
 

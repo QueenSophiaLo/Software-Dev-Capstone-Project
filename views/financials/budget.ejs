@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<<<<<<< Updated upstream
   <title>FIN: Budget</title>
+=======
+  <title>FIN: Home</title>
+>>>>>>> Stashed changes
   <%- include('../partials/header.ejs'); %>
 </head>
 <body>
@@ -80,11 +84,26 @@
 
 </div>
 
+<<<<<<< Updated upstream
   <% if (typeof budgetSummary !== 'undefined' && budgetSummary) { %>
     <script>
       // Only define these if data exists to prevent console errors
       const incomeChart = <%- typeof incomeChart !== 'undefined' ? JSON.stringify(incomeChart) : '[]' %>;
       const chartData = <%- typeof recentTransactions !== 'undefined' ? JSON.stringify(recentTransactions) : '[]' %>;
+=======
+  <div class="notes-section">
+    <h3>Notes</h3>
+    <form action="/financials/budget" class ="note-form" method="POST">
+      
+      <% if (locals.csrfToken) { %>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <% } %>
+
+      <textarea name="notes" placeholder="Write notes..." required><%= notes %></textarea>
+      <button type="submit">Save Notes</button>
+    </form>
+  </div>
+>>>>>>> Stashed changes
 
       // Safe processing for client-side JS
       if(incomeChart.length > 0 && chartData.length > 0) {
@@ -103,6 +122,44 @@
     <script src="/js/budgetCharts.js"></script>
   <% } %>
 
+<<<<<<< Updated upstream
+=======
+  <script id="payload-income" type="application/json">
+    <%- JSON.stringify(incomeChart) %>
+  </script>
+
+  <script id="payload-transactions" type="application/json">
+    <%- JSON.stringify(recentTransactions) %>
+  </script>
+
+  <script>
+    // 1. Retrieve and Parse Data safely
+    const incomeChart = JSON.parse(document.getElementById('payload-income').textContent);
+    const allTransactions = JSON.parse(document.getElementById('payload-transactions').textContent);
+
+    // 2. Process Income Data
+    const incomeLabels = incomeChart.map(a => a.type);
+    const incomeValues = incomeChart.map(a => a.amount);
+
+    // 3. Process Transaction Data
+    const chartData = allTransactions.slice(0, 30);
+
+    const expenseDataFromServer = chartData.filter(t => t.amount < 0);
+
+    const expenseByCategory = {};
+    expenseDataFromServer.forEach(t => {
+      const cat = t.category || t.details?.category || "Other";
+      expenseByCategory[cat] = (expenseByCategory[cat] || 0) + Math.abs(t.amount);
+    });
+
+    // Note: These variables (incomeLabels, incomeValues, expenseByCategory) 
+    // are now available for 'budgetCharts.js' below.
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/js/budgetCharts.js"></script>
+
+>>>>>>> Stashed changes
   <%- include('../partials/footer.ejs')%>
 </body>
 </html>
