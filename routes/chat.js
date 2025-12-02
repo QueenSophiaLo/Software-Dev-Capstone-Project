@@ -4,7 +4,7 @@ const { GoogleGenAI } = require('@google/genai');
 require('dotenv').config(); 
 const mongoose = require('mongoose'); 
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey:''});
 const model = "gemini-2.5-flash"; 
 const userChatSessions = {}; 
 
