@@ -1286,3 +1286,80 @@ table tbody tr:hover {
     background-color: #a5d6a7;
     cursor: not-allowed;
 }
+
+/* Inbox / Notification Styles */
+
+.notification-list {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.notif-item {
+    display: flex;
+    padding: 20px;
+    border-bottom: 1px solid #f0f0f0;
+    align-items: flex-start;
+    transition: background-color 0.2s;
+}
+
+.notif-item:last-child { border-bottom: none; }
+.notif-item:hover { background-color: #fafafa; }
+
+/* Read vs Unread Logic */
+.notif-item.unread {
+    background-color: #f0f7ff; /* Very light blue for unread */
+    border-left: 4px solid #007bff;
+}
+.notif-item.read {
+    opacity: 0.8;
+}
+
+/* Icons */
+.notif-icon {
+    font-size: 1.5rem;
+    margin-right: 20px;
+    margin-top: 2px;
+}
+.notif-icon.alert { color: #d64545; }
+.notif-icon.warning { color: #ffc107; }
+.notif-icon.success { color: #2fbd08; }
+.notif-icon.info { color: #007bff; }
+
+/* Content */
+.notif-content { flex-grow: 1; }
+
+.notif-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.notif-title {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.notif-date {
+    font-size: 0.85rem;
+    color: #999;
+}
+
+.notif-msg {
+    margin: 0;
+    color: #555;
+    line-height: 1.4;
+}
+
+/* Mark Read Button */
+.mark-read-btn {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    margin-left: 15px;
+    font-size: 1.2rem;
+}
+.mark-read-btn:hover { color: #0056b3; }
