@@ -1,0 +1,63 @@
+<h2>Notification Settings</h2>
+<p>Manage how and when you receive alerts about your budget.</p>
+
+<form action="/users/profile/notifications" method="POST" class="profile-form">
+
+    <div class="notification-group master-group">
+        <label class="switch-container">
+            <h3>Enable Budget Notifications</h3>
+            <label class="switch">
+                <input type="checkbox" name="enabled" <%= user.notifications.enabled ? 'checked' : '' %>>
+                <span class="slider round"></span>
+            </label>
+        </label>
+        <p class="small-text">Turn this off to stop receiving all budget-related emails.</p>
+    </div>
+
+    <hr>
+
+    <h3>Real-Time Alerts</h3>
+    
+    <div class="notification-item">
+        <input type="checkbox" id="threshold" name="threshold" <%= user.notifications.thresholdWarning ? 'checked' : '' %>>
+        <label for="threshold"><strong>Near Limit Warning (80%)</strong></label>
+        <p class="indent-text">Get notified when you reach 80% of a category budget.</p>
+    </div>
+
+    <div class="notification-item">
+        <input type="checkbox" id="overbudget" name="overbudget" <%= user.notifications.overBudgetAlert ? 'checked' : '' %>>
+        <label for="overbudget"><strong>Over Limit Alert (100%)</strong></label>
+        <p class="indent-text">Get notified immediately when you exceed a budget.</p>
+    </div>
+
+    <h3>Scheduled Summaries</h3>
+
+    <div class="notification-item">
+        <input type="checkbox" id="weekly" name="weekly" <%= user.notifications.weeklySummary ? 'checked' : '' %>>
+        <label for="weekly"><strong>Weekly Summary</strong></label>
+        <p class="indent-text">Receive a spending breakdown every Friday at 6 PM.</p>
+    </div>
+
+    <div class="notification-item">
+        <input type="checkbox" id="monthly" name="monthly" <%= user.notifications.monthlySummary ? 'checked' : '' %>>
+        <label for="monthly"><strong>Monthly Report</strong></label>
+        <p class="indent-text">Receive a performance summary on the 1st of every month.</p>
+    </div>
+
+    <br>
+    <button type="submit" class="reg-button">Save Preferences</button>
+</form>
+
+<style>
+    .notification-item { margin-bottom: 15px; }
+    .indent-text { margin-left: 25px; color: #666; font-size: 0.9em; margin-top: 0;}
+    
+    /* Toggle Switch Styling */
+    .switch { position: relative; display: inline-block; width: 50px; height: 24px; vertical-align: middle; margin-left: 15px;}
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+    .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: #2fbd08; }
+    input:checked + .slider:before { transform: translateX(26px); }
+    .switch-container { display: flex; align-items: center; justify-content: space-between; max-width: 400px; }
+</style>

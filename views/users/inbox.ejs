@@ -1,14 +1,57 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <title>FIN: Inbox</title>
-  <!-- Header -->
-   <script src="/js/sendEmail.js"></script>
-<%- include('../partials/header.ejs'); %>
+<%- include('../partials/header.ejs') %>
 
-    <h1>Inbox (WIP)</h1>
-    <button onclick="sendEmail('khalonki@charlotte.edu')">Send Email</button>
-  <!-- Footer -->
-   <script type='module' src="/js/sendEmail.js"></script>
-  <%- include('../partials/footer.ejs')%>
-</html>
+<main class="container" style="max-width: 800px; margin-top: 30px;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Inbox</h1>
+        <form action="/users/inbox/mark-all-read" method="POST">
+            <button class="filter-btn" style="background: none; border: 1px solid #ccc;">Mark all as read</button>
+        </form>
+    </div>
+
+    <div class="notification-list">
+        <% if (notifications.length > 0) { %>
+            <% notifications.forEach(notif => { %>
+                
+                <div class="notif-item <%= notif.isRead ? 'read' : 'unread' %>">
+                    
+                    <div class="notif-icon <%= notif.type %>">
+                        <% if (notif.type === 'alert') { %>
+                            <i class="fas fa-exclamation-circle"></i>
+                        <% } else if (notif.type === 'warning') { %>
+                            <i class="fas fa-exclamation-triangle"></i>
+                        <% } else if (notif.type === 'success') { %>
+                            <i class="fas fa-check-circle"></i>
+                        <% } else { %>
+                            <i class="fas fa-info-circle"></i>
+                        <% } %>
+                    </div>
+
+                    <div class="notif-content">
+                        <div class="notif-header">
+                            <span class="notif-title"><%= notif.title %></span>
+                            <span class="notif-date"><%= notif.createdAt.toLocaleDateString() %></span>
+                        </div>
+                        <p class="notif-msg"><%= notif.message %></p>
+                    </div>
+
+                    <% if (!notif.isRead) { %>
+                        <form action="/users/inbox/mark-read/<%= notif._id %>" method="POST">
+                            <button class="mark-read-btn" title="Mark as Read"><i class="fas fa-check"></i></button>
+                        </form>
+                    <% } %>
+
+                </div>
+
+            <% }) %>
+        <% } else { %>
+            <div style="text-align: center; color: #777; padding: 40px;">
+                <i class="fas fa-envelope-open" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                <p>You're all caught up! No new notifications.</p>
+            </div>
+        <% } %>
+    </div>
+
+</main>
+
+<%- include('../partials/footer.ejs') %>

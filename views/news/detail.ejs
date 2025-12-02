@@ -1,22 +1,27 @@
 <%- include('../partials/header.ejs') %>
 
-<main class="container" style="padding: 30px; max-width: 800px; margin: 0 auto;">
-    <a href="/financials/news" class="reg-button" style="text-decoration: none; padding: 5px 10px; font-size: 0.9rem;">&larr; Back to Feed</a>
+<main class="container">
+    <div style="max-width: 800px; margin: 0 auto; width: 100%;">
+        
+        <a href="/financials/news" class="reg-button" style="display:inline-block; margin-bottom: 20px;">
+            &larr; Back to Feed
+        </a>
 
-    <h1 style="margin-top: 20px;"><%= article.title %></h1>
-    <p><strong>Source:</strong> <%= article.source %></p>
+        <h1><%= article.title %></h1>
+        <p class="text-muted"><strong>Source:</strong> <%= article.source %></p>
 
-    <% if (article.image) { %>
-        <img src="<%= article.image %>" style="width: 100%; border-radius: 10px; margin: 20px 0;" alt="News Image">
-    <% } %>
+        <% if (article.image) { %>
+            <img src="<%= article.image %>" style="width: 100%; border-radius: 12px; margin: 20px 0; max-height: 400px; object-fit: cover;" alt="News Image">
+        <% } %>
 
-    <div class="article-content" style="line-height: 1.6; font-size: 1.1rem;">
-        <p><%= article.content %></p>
-    </div>
+        <div class="article-content" style="line-height: 1.8; font-size: 1.1rem; color: #333;">
+            <p><%= article.content %></p>
+        </div>
 
-    <div style="background: #f4f4f4; padding: 20px; border-radius: 8px; margin-top: 30px;">
-        <p>Read the full story at the source:</p>
-        <a href="<%= article.url %>" target="_blank" class="reg-button">Visit Original Article</a>
+        <div style="background: #f8f9fa; padding: 25px; border-radius: 12px; margin-top: 40px; text-align: center;">
+            <p>Read the full story at the original source:</p>
+            <a href="<%= article.url %>" target="_blank" class="reg-button">Visit Original Article</a>
+        </div>
     </div>
 </main>
 

@@ -1,5 +1,7 @@
 const model = require('../models/user');
-const financeData = require('../models/finance-data')
+const financeData = require('../models/finance-data');
+// ✅ FIXED: Added missing import for Notifications
+const Notification = require('../models/notification');
 
 exports.login = (req, res) =>{
     return res.render('./users/login')
@@ -9,9 +11,90 @@ exports.signup = (req, res) =>{
     return res.render('./users/new')
 }
 
-exports.inbox = (req, res) =>{
-    return res.render('./users/inbox')
-}
+// --- NOTIFICATION / INBOX LOGIC ---
+
+exports.inbox = async (req, res, next) => {
+    try {
+        const userId = req.session.user;
+        const notifications = await Notification.find({ user: userId })
+                                                .sort({ createdAt: -1 });
+        res.render('users/inbox', { notifications }); 
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.getNotifications = async (req, res, next) => {
+    try {
+        const userId = req.session.user;
+        const user = await model.findById(userId);
+        if (!user) return res.redirect('/users/log-in');
+
+        res.render('users/profile', { 
+            user: user,
+            activeTab: 'notifications',
+            tabView: './tabs/notifications'
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.updateNotifications = async (req, res, next) => {
+    try {
+        const userId = req.session.user;
+        const { enabled, threshold, overbudget, weekly, monthly } = req.body;
+        const user = await model.findById(userId);
+        
+        user.notifications = {
+            enabled: !!enabled, 
+            thresholdWarning: !!threshold,
+            overBudgetAlert: !!overbudget,
+            weeklySummary: !!weekly,
+            monthlySummary: !!monthly
+        };
+
+        await user.save();
+        req.flash('success', 'Notification preferences updated.');
+        res.redirect('/users/profile/notifications');
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.getInbox = async (req, res, next) => {
+    try {
+        const userId = req.session.user;
+        const notifications = await Notification.find({ user: userId })
+                                                .sort({ createdAt: -1 })
+                                                .limit(50);
+        res.render('users/inbox', { notifications });
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.markAsRead = async (req, res, next) => {
+    try {
+        const id = req.params.id;
+        await Notification.findByIdAndUpdate(id, { isRead: true });
+        res.redirect('/users/inbox');
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.markAllRead = async (req, res, next) => {
+    try {
+        const userId = req.session.user;
+        await Notification.updateMany({ user: userId, isRead: false }, { isRead: true });
+        res.redirect('/users/inbox');
+    } catch (error) {
+        next(error);
+    }
+};
+
+// --- AUTH LOGIC ---
 
 exports.loginUser = (req, res, next)=>{
     let email = req.body.email;
@@ -23,35 +106,16 @@ exports.loginUser = (req, res, next)=>{
             user.comparePassword(password)
             .then(result =>{
                 if(result){
-                    if(process.env.NODE_ENV === 'test'){
-                        req.session.user = user._id;
-                        req.flash('success', 'You have successfully logged in')
-                        return res.redirect('/');
-                    }
                     req.session.user = user._id;
                     req.flash('success', 'You have successfully logged in')
-                    req.session.save(() =>{
-                        return res.redirect('/')
-                    })
-                }
-                else{
-                    if(process.env.NODE_ENV === 'test'){
-                        req.flash('error', 'Wrong Password')
-                        return res.redirect('/users/log-in');
-                    }
+                    req.session.save(() =>{ return res.redirect('/') })
+                } else{
                     req.flash('error', 'Wrong Password')
-                    req.session.save(() =>{
-                        return res.redirect('/users/log-in')
-                    })
+                    req.session.save(() =>{ return res.redirect('/users/log-in') })
                 }
             })
             .catch(err => next(err))
-        }
-        else{
-            if(process.env.NODE_ENV === 'test'){
-                req.flash('error', 'Wrong Email')
-                return res.redirect('/users/log-in');
-            }
+        } else{
             req.session.save(() =>{
                 req.flash('error', 'Wrong Email')
                 return res.redirect('/users/log-in')
@@ -65,27 +129,16 @@ exports.signupUser = (req, res, next) =>{
     let user = new model(req.body);
     user.save()
     .then(() =>{
-        if(process.env.NODE_ENV === 'test'){
-            return res.redirect('/users/log-in');
-        }
-        else{
-            req.flash('success', 'You have successfully registered an account')
-            req.session.save(() =>{
-                return res.redirect('/users/log-in')
-            })
-        }
+        req.flash('success', 'You have successfully registered an account')
+        req.session.save(() =>{ return res.redirect('/users/log-in') })
     })
     .catch(err =>{
         if(err.code === 11000){
-            if(process.env.NODE_ENV === 'test'){
-                return res.redirect('/users/sign-up');
-            }
             req.session.save(() =>{
                 req.flash('error', 'Email must be unique')
                 return res.redirect('/users/sign-up')
             })
-        }
-        else{
+        } else{
             next(err);
         }
     })
@@ -93,38 +146,20 @@ exports.signupUser = (req, res, next) =>{
 
 exports.logOut = (req, res, next) =>{
     req.session.destroy(err =>{
-        if(err){
-            next(err)
-        } else{
-            res.redirect('/');
-        }
+        if(err){ next(err) } else{ res.redirect('/'); }
     })
 }
 
-// --- Security Question Setup Functions ---
+// --- SECURITY LOGIC ---
 
-/**
- * Renders the form for a logged-in user to set up their security question.
- * @param {object} req - Express request object
- * @param {object} res - Express response object
- */
 exports.getSecuritySetup = (req, res) => {
-    // You'd need to create a security.ejs file for this
     res.render('./users/security'); 
 };
 
-/**
- * Handles the POST request to save the security question and hashed answer.
- * @param {object} req - Express request object
- * @param {object} res - Express response object
- * @param {function} next - Express next middleware function
- */
 exports.postSecuritySetup = async (req, res, next) => {
     try {
         const { question, answer } = req.body;
-        const userId = req.session.user; // Get ID of the currently logged-in user
-
-        // 1. Find the user and update their security fields
+        const userId = req.session.user; 
         const user = await model.findById(userId);
 
         if (!user) {
@@ -133,13 +168,11 @@ exports.postSecuritySetup = async (req, res, next) => {
         }
 
         user.securityQuestion = question;
-        user.securityAnswer = answer; // The pre-save hook handles hashing
-
+        user.securityAnswer = answer; 
         await user.save(); 
 
         req.flash('success', 'Security question successfully saved.');
-        res.redirect('/users/profile'); // Redirect back to profile page
-
+        res.redirect('/users/profile'); 
     } catch (error) {
         console.error("Error setting up security question:", error);
         req.flash('error', 'Failed to save security question.');
@@ -147,32 +180,20 @@ exports.postSecuritySetup = async (req, res, next) => {
     }
 };
 
-// --- Password Recovery Functions ---
-
-/**
- * Renders the initial 'Forgot Password' form, asking for email.
- */
 exports.forgotPassword = (req, res) => {
-    // You'll need to create a forgot.ejs file for this
     res.render('./users/forgot'); 
 };
 
-/**
- * Handles email submission, looks up the user, and shows the security question.
- */
 exports.postForgotEmail = async (req, res, next) => {
     try {
         const email = req.body.email;
         const user = await model.findOne({ email });
 
-        // Ensure user exists AND has all 3 questions set
         if (!user || !user.securityQuestion1 || !user.securityQuestion2 || !user.securityQuestion3) { 
             req.flash('error', 'Email not found or security questions are incomplete.');
             return res.redirect('/users/forgot');
         }
 
-        // 1. Define the Translation Map
-        // This MUST match the 'value' attributes in your <select> tags
         const questionMap = {
             'pet': 'What was the name of your first pet?',
             'city': 'In what city were you born?',
@@ -185,19 +206,12 @@ exports.postForgotEmail = async (req, res, next) => {
             'sport': 'What is your favorite sport?'
         };
 
-        // 2. Translate the codes to full text
-        // We use || user.securityQuestionX as a fallback in case the code isn't found
         const q1Text = questionMap[user.securityQuestion1] || user.securityQuestion1;
         const q2Text = questionMap[user.securityQuestion2] || user.securityQuestion2;
         const q3Text = questionMap[user.securityQuestion3] || user.securityQuestion3;
 
-        // Store info in session
-        req.session.recovery = {
-            userId: user._id,
-            email: user.email
-        };
+        req.session.recovery = { userId: user._id, email: user.email };
 
-        // 3. Pass the TRANSLATED text to the view
         res.render('./users/security-check', { 
             questions: [q1Text, q2Text, q3Text],
             email: user.email
@@ -208,12 +222,8 @@ exports.postForgotEmail = async (req, res, next) => {
     }
 };
 
-/**
- * Handles the submission of the security answer and resets the password if correct.
- */
 exports.postSecurityAnswer = async (req, res, next) => {
     try {
-        // We now expect 3 answers from the form
         const { answer1, answer2, answer3, newPassword } = req.body;
         const recoveryData = req.session.recovery;
 
@@ -224,24 +234,21 @@ exports.postSecurityAnswer = async (req, res, next) => {
 
         const user = await model.findById(recoveryData.userId);
 
-        // Verify ALL 3 answers concurrently
         const valid1 = await user.compareSecurityAnswer(answer1, 1);
         const valid2 = await user.compareSecurityAnswer(answer2, 2);
         const valid3 = await user.compareSecurityAnswer(answer3, 3);
 
         if (!valid1 || !valid2 || !valid3) {
             req.flash('error', 'One or more answers were incorrect.');
-            return res.redirect('/users/forgot'); // Or re-render security-check
+            return res.redirect('/users/forgot'); 
         }
         
-        // Success! Reset Password
         user.password = newPassword; 
         await user.save();
         
         req.session.recovery = null;
         req.flash('success', 'Password reset successfully.');
         res.redirect('/users/log-in');
-
     } catch (error) {
         next(error);
     }
@@ -277,16 +284,11 @@ exports.updateTargetSavings = async (req, res) => {
     }
 };
 
+// --- PROFILE LOGIC ---
 
-/**
- * Renders the user's profile page with their stored details.
- * Requires user to be logged in.
- */
 exports.getProfile = async (req, res, next) => {
     try {
         const userId = req.session.user;
-
-        // Fetch user data, but exclude the hashed password/answer for security
         const user = await model.findById(userId).select('-password -securityAnswer'); 
 
         if (!user) {
@@ -294,75 +296,48 @@ exports.getProfile = async (req, res, next) => {
             return res.redirect('/users/log-in');
         }
 
+        // ✅ FIXED: Handle Missing Financial Data Gracefully
         financeData.findOne({ userId: req.session.user })
             .then(data => {
-                if (!data) {
-                    req.flash("error", "No financial data found.");
-                    return res.redirect("/");
-                }
-        
-                const recentTransactions = (data.transactions[0]).slice(0, 30);
-        
-                const normalizedTxns = recentTransactions.map(t => {
-                    const rawAmount = parseFloat(t.amount);
-                    const incomingTypes = ["credit", "ach_in", "income", "deposit", "interest", "transfer_in", "zelle_in", "refund"];
-                    const outgoingTypes = ["card_payment", "ach_out", "debit", "transfer_out", "zelle_out", "fee"];
-        
-                    let amountNum = rawAmount;
-        
-                    if (incomingTypes.includes(t.type)) {
-                        amountNum = Math.abs(rawAmount);
-                    } else if (outgoingTypes.includes(t.type)) {
-                        amountNum = -Math.abs(rawAmount);
-                    }
-        
-                    return {
-                        id: t.id,
-                        date: t.date,
-                        description: t.description,
-                        category: t.details?.category || "Other",
-                        type: t.type,
-                        amount: amountNum
-                    };
-                });
-        
-                normalizedTxns.sort((a, b) => new Date(b.date) - new Date(a.date));
-        
-                const balanceEntries = (data.balances).map(b => ({
-                    id: `balance_${b.account_id}`,
-                    date: new Date().toISOString(),
-                    description: `Balance (${b.account_id.slice(-4)})`,
-                    category: "Balance",
-                    type: "balance",
-                    amount: Number(b.available)
-                }))
+                // DEFAULT EMPTY STATE if no data
+                let budgetSummary = null;
                 
-        
-                const normalizedWithBalance = [...normalizedTxns, ...balanceEntries];
-        
-                const totalIncome = normalizedWithBalance
-                    .filter(t => t.amount > 0)
-                    .reduce((sum, t) => sum + t.amount, 0);
-        
-                const totalExpense = normalizedWithBalance
-                    .filter(t => t.amount < 0)
-                    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-        
-                const targetExpenditure = data.targetSavings.reduce((sum, t) => sum + Number(t.amount), 0); 
-        
-                const budgetSummary = {
-                    status: targetExpenditure < totalExpense ? "overbudget" : "ok",
-                    targetExpenditure,
-                    totalExpense,
-                    totalIncome,
-                    surplusDeficit: targetExpenditure - totalExpense
-                };
+                if (data) {
+                    const recentTransactions = (data.transactions[0] || []).slice(0, 30);
+                    
+                    const normalizedTxns = recentTransactions.map(t => {
+                        const rawAmount = parseFloat(t.amount);
+                        const incomingTypes = ["credit", "ach_in", "income", "deposit", "interest", "transfer_in", "zelle_in", "refund"];
+                        const outgoingTypes = ["card_payment", "ach_out", "debit", "transfer_out", "zelle_out", "fee"];
+                        let amountNum = rawAmount;
+                        if (incomingTypes.includes(t.type)) amountNum = Math.abs(rawAmount);
+                        else if (outgoingTypes.includes(t.type)) amountNum = -Math.abs(rawAmount);
+                        return { amount: amountNum };
+                    });
+            
+                    const totalIncome = normalizedTxns.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0);
+                    const totalExpense = normalizedTxns.filter(t => t.amount < 0).reduce((sum, t) => sum + Math.abs(t.amount), 0);
+                    
+                    // Check if targetSavings exists
+                    const targetExpenditure = data.targetSavings 
+                        ? data.targetSavings.reduce((sum, t) => sum + Number(t.amount), 0) 
+                        : 0;
+
+                    budgetSummary = {
+                        status: targetExpenditure < totalExpense ? "overbudget" : "ok",
+                        targetExpenditure,
+                        totalExpense,
+                        totalIncome,
+                        surplusDeficit: targetExpenditure - totalExpense
+                    };
+                }
+
                 res.render('./users/profile', { 
                     user: user, 
                     activeTab: 'main',
                     tabView: './tabs/main.ejs',
-                    data,
-                    budgetSummary,
+                    data: data || {}, // Pass empty object if null
+                    budgetSummary: budgetSummary // Pass null if no data
                 });
             })
     } catch (error) {
@@ -372,23 +347,17 @@ exports.getProfile = async (req, res, next) => {
 
 exports.getSecurity = async (req, res) => {
     const user = await model.findById(req.session.user);
-
     res.render('./users/profile', {
         user,
-        activeTab: 'sandbox',
+        activeTab: 'security', // Fixed tab name
         tabView: './tabs/securityQuestions'
     });
 };
 
-/**
- * Handles updates to user details (Name, Email, Security Question/Answer).
- * Requires user to be logged in.
- */
 exports.updateProfile = async (req, res, next) => {
     try {
         const userId = req.session.user;
-        const body = req.body; // Access all form fields
-
+        const body = req.body; 
         const user = await model.findById(userId);
 
         if (!user) {
@@ -396,11 +365,9 @@ exports.updateProfile = async (req, res, next) => {
             return res.redirect('/users/log-in');
         }
 
-        // 1. Update Basic Details
         user.name = body.name;
         user.email = body.email;
 
-        // 2. Update Security Questions (Only if answer is provided)
         if (body.securityQuestion1 && body.securityAnswer1) {
             user.securityQuestion1 = body.securityQuestion1;
             user.securityAnswer1 = body.securityAnswer1; 
@@ -415,7 +382,6 @@ exports.updateProfile = async (req, res, next) => {
         }
         
         await user.save();
-
         req.flash('success', 'Profile and security details updated successfully.');
         res.redirect('/users/profile');
 

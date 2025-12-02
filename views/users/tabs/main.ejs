@@ -1,66 +1,57 @@
 <h2>Welcome, <%= user.name %></h2>
-<h3>You have $<%= budgetSummary.totalIncome.toFixed(2) %> USD</h3>
 
-<div class="dashboard-container">
-    <div class="mini-dashboard-widget">
-        <div class="widget-header">
-            <h3>Financial Summary</h3>
-            <span class="widget-status status-deficit"><%= budgetSummary.status %></span>
-        </div>
-        
-        <div class="widget-main-stat">
-            <span class="stat-label">Net Position</span>
-            <span class="stat-value negative">$<%= budgetSummary.surplusDeficit.toFixed(2) %></span>
-        </div>
-    
-        <div class="widget-row">
-            <div class="widget-col">
-                <span class="stat-label">Total Income</span>
-                <span class="stat-value income"> $<%= budgetSummary.totalIncome.toFixed(2) %></span>
+<% if (typeof budgetSummary !== 'undefined' && budgetSummary) { %>
+    <h3>Total Income: $<%= budgetSummary.totalIncome.toFixed(2) %> USD</h3>
+
+    <div class="dashboard-container">
+        <div class="mini-dashboard-widget">
+            <div class="widget-header">
+                <h3>Financial Summary</h3>
+                <span class="widget-status <%= budgetSummary.status === 'overbudget' ? 'status-deficit' : 'status-success' %>">
+                    <%= budgetSummary.status %>
+                </span>
             </div>
-            <div class="widget-col border-left">
-                <span class="stat-label">Total Expenses</span>
-                <span class="stat-value expense"> $<%= budgetSummary.totalExpense.toFixed(2) %></span>
+            
+            <div class="widget-main-stat">
+                <span class="stat-label">Net Surplus/Deficit</span>
+                <span class="stat-value <%= budgetSummary.surplusDeficit < 0 ? 'negative' : 'income' %>">
+                    <%= budgetSummary.surplusDeficit < 0 ? '-' : '' %>$<%= Math.abs(budgetSummary.surplusDeficit).toFixed(2) %>
+                </span>
             </div>
-        </div>
-        
-        <div class="widget-footer">
-            <a href="/financials/budget">View Full Budget &raquo;</a>
+
+            <div class="widget-row">
+                <div class="widget-col">
+                    <span class="stat-label">Total Income</span>
+                    <span class="stat-value income">$<%= budgetSummary.totalIncome.toFixed(2) %></span>
+                </div>
+                <div class="widget-col border-left">
+                    <span class="stat-label">Total Expenses</span>
+                    <span class="stat-value expense">$<%= budgetSummary.totalExpense.toFixed(2) %></span>
+                </div>
+            </div>
         </div>
     </div>
+
+<% } else { %>
+    <h3>Account Balance: $0.00</h3>
     
-    <div class="target-savings-widget">
-        <h3>Savings Targets</h3>
-        <table>
-            <tr>
-                <th>Amount</th>
-                <th>Category</th>
-                <th>Action</th>
-            </tr>
-            <% data.targetSavings.forEach((t, index) => { %>
-                <tr>
-                    <td>$<%= t.amount.toFixed(2) %></td>
-                    <td><%= t.category %></td>
-                    <td>
-                        <form action="/users/profile" method="POST" style="display:inline;">
-                            <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="index" value="<%= index %>">
-                            <button type="submit" class="btn-delete">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            <% }) %>
-        </table>
+    <div class="dashboard-container" style="text-align: center; padding: 40px; background: #f9f9f9; border-radius: 8px; border: 2px dashed #ddd;">
+        <p>You haven't linked any financial data yet.</p>
+        <p>Link a bank account to see your financial summary here.</p>
+        <br>
+        <a href="/financials/add-bank" class="reg-button">Link Bank Account</a>
+    </div>
+<% } %>
+
+<hr>
+<form action="/users/profile" method="POST" class="profile-form">
+    <h3>Personal Details</h3>
     
-        <form action="/users/profile" method="POST" style="margin-top: 15px;">
-            <input type="hidden" name="action" value="add">
-            <input type="number" name="amount" placeholder="Amount" required>
-            <select name="category">
-                <option value="general">General</option>
-                <option value="vacation">Vacation</option>
-                <option value="emergency">Emergency</option>
-            </select>
-            <button type="submit">Add Target</button>
-        </form>
-    </div>    
-</div>
+    <label for="name">Name</label><br>
+    <input type="text" id="name" name="name" value="<%= user.name %>" required><br><br>
+    
+    <label for="email">Email</label><br>
+    <input type="email" id="email" name="email" value="<%= user.email %>" required><br><br>
+    
+    <button type="submit" class="reg-button">Update Profile</button>
+</form>
