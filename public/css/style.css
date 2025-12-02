@@ -1056,20 +1056,21 @@ table tbody tr:hover {
 }
 
 /* === Financial Assistant Chatbot === */
-/* Ensure the chatbot container floats in the corner */
+
+/* --- Container and Toggle Button --- */
 #fin-chat-container {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1000; /* Keep it above other elements */
+    /* Use 25px for better spacing off the corner */
+    bottom: 25px;
+    right: 25px;
+    z-index: 1000;
 }
 
-/* Style for the floating icon/button */
 #fin-chat-toggle {
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background-color: #007bff; /* Primary Blue/Green (Financial look) */
+    background-color: #007bff; 
     color: white;
     font-size: 28px;
     display: flex;
@@ -1085,12 +1086,11 @@ table tbody tr:hover {
     transform: scale(1.05);
 }
 
-/* Utility class to hide the window */
 .hidden {
     display: none !important;
 }
 
-/* Style for the main chat window */
+/* --- Main Chat Window --- */
 #fin-chat-window {
     width: 320px;
     height: 450px;
@@ -1100,12 +1100,11 @@ table tbody tr:hover {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
     display: flex;
     flex-direction: column;
-    position: absolute;
-    bottom: 80px; /* Position above the toggle button */
+    /* Adjusted bottom to 85px to accommodate the larger toggle button */
+    bottom: 85px; 
     right: 0;
-    overflow: hidden; /* Contains child elements within the rounded corners */
+    overflow: hidden; 
 }
-
 
 #fin-chat-header {
     padding: 15px;
@@ -1135,33 +1134,67 @@ table tbody tr:hover {
     border-radius: 10px;
 }
 
-/* --- Message Bubbles --- */
 
-#fin-chat-messages p {
+/* --- 1. Message Wrapper (Alignment) --- */
+
+.user-message-wrapper, .bot-message-wrapper {
     margin: 8px 0;
-    padding: 10px 12px;
-    border-radius: 18px;
-    max-width: 80%;
-    word-wrap: break-word;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+    display: flex;
+    max-width: 100%;
 }
 
+.user-message-wrapper {
+    justify-content: flex-end; /* Push user bubble to the right */
+}
+
+.bot-message-wrapper {
+    justify-content: flex-start; /* Push bot bubble to the left */
+}
+
+/* --- 2. Core Bubble Styles (Appearance) --- */
+
+.user-message, .bot-message {
+    padding: 10px 12px;
+    border-radius: 18px;
+    max-width: 85%; /* Limit bubble width */
+    word-wrap: break-word;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+    /* Remove default element margin/padding that might clash with wrapper */
+    margin: 0; 
+}
+
+/* Style for the inner content of the bubbles */
 .bot-message {
-    /* Message from the AI Assistant */
-    background-color: #e5e5ea; /* Light gray bubble */
+    background-color: #e5e5ea; 
     color: #333;
-    text-align: left;
-    margin-right: auto; /* Pushes the bubble to the left */
-    border-top-left-radius: 4px; /* Slightly sharp top-left corner */
+    border-top-left-radius: 4px; 
 }
 
 .user-message {
-    /* Message from the User */
-    background-color: #007bff; /* Primary color bubble */
+    background-color: #007bff; 
     color: white;
-    text-align: right;
-    margin-left: auto; /* Pushes the bubble to the right */
-    border-top-right-radius: 4px; /* Slightly sharp top-right corner */
+    border-top-right-radius: 4px; 
+}
+
+/* --- 3. Inner Content Formatting (Markdown/Lists) --- */
+
+/* Target paragraphs inside the bubble wrapper */
+.user-message p, .bot-message p {
+    margin: 0 0 5px 0; /* Add bottom margin for separation between paragraphs */
+    padding: 0;
+}
+
+/* Target lists inside the bubble wrapper */
+.user-message ul, .user-message ol,
+.bot-message ul, .bot-message ol {
+    padding-left: 20px; /* Indent lists */
+    margin: 5px 0; /* Add margin above/below lists */
+    list-style-position: inside; /* Helps keep the list marker within the bubble */
+    color: inherit; 
+}
+
+.user-message li, .bot-message li {
+    margin-bottom: 4px; 
 }
 
 /* --- Input Area --- */
@@ -1184,7 +1217,7 @@ table tbody tr:hover {
 
 #fin-chat-send {
     padding: 0 15px;
-    background-color: #4CAF50; /* Accent Green */
+    background-color: #4CAF50;
     color: white;
     font-weight: 600;
     border: none;
