@@ -16,16 +16,7 @@ const userSchema = new Schema({
     securityAnswer2: { type: String, trim: true },
 
     securityQuestion3: { type: String, trim: true },
-    securityAnswer3: { type: String, trim: true },
-
-    // Notification Preferences
-    notifications: {
-        enabled: { type: Boolean, default: false }, // Master toggle
-        thresholdWarning: { type: Boolean, default: true }, // 80% warning
-        overBudgetAlert: { type: Boolean, default: true }, // 100% alert
-        weeklySummary: { type: Boolean, default: false },
-        monthlySummary: { type: Boolean, default: false }
-    }
+    securityAnswer3: { type: String, trim: true }
 });
 
 userSchema.pre('save', function(next) {

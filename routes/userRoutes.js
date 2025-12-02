@@ -34,16 +34,6 @@ router.get('/profile/securityQuestions', auth.isLoggedIn, controller.getSecurity
 // POST /users/profile: Handle updates to user details and security questions
 router.post('/profile/security', auth.isLoggedIn, controller.updateProfile);
 
-// Notification Settings Tab
-router.get('/profile/notifications', auth.isLoggedIn, controller.getNotifications);
-
-router.post('/profile/notifications', auth.isLoggedIn, controller.updateNotifications);
-
-// INBOX ROUTES
-router.get('/inbox', auth.isLoggedIn, controller.getInbox);
-router.post('/inbox/mark-read/:id', auth.isLoggedIn, controller.markAsRead);
-router.post('/inbox/mark-all-read', auth.isLoggedIn, controller.markAllRead);
-
 //GET /logout: logout current user session
 router.get('/logout', auth.isLoggedIn, controller.logOut);
 

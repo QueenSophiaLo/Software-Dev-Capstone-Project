@@ -1,25 +1,25 @@
 const express = require('express');
-const router = express.Router();
 const controller = require('../controllers/budgetController');
-const tellerController = require('../controllers/tellerDataController');
-const auth = require('../middleware/auth'); // Import Auth Middleware
+const tellerController = require('../controllers/tellerDataController')
 
-// All routes here should likely be protected
-router.use(auth.isLoggedIn); 
+const router = express.Router();
 
-// GET /financials/ (Dashboard)
+// GET /budget-dashboard or home dashboard
 router.get('/', controller.index);
 
-// GET /financials/budget (Budget Overview)
-router.get('/budget', controller.bankaccount);
-router.post('/budget', controller.saveNotes);
-
-// GET /financials/add-bank
+// GET /add-bank
 router.get('/add-bank', controller.budget);
+
 router.post('/add-bank', tellerController.handleCallBack);
+// GET /budget
+router.get('/budget', controller.bankaccount);
+
+router.post('/budget', controller.saveNotes);
 
 // GET /financials/resources
 router.get('/resources', controller.resources);
+
+// GET /financials/resources/:id
 router.get('/resources/:id', controller.resourceDetail);
 
 module.exports = router;
