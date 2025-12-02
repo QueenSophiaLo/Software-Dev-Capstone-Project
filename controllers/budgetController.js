@@ -98,8 +98,7 @@ exports.bankaccount = (req, res) => {
             notes: data.notes || ""
         });
     })
-    .catch(err => {
-        console.error(err);
+    .catch(() => {
         req.flash("error", "Server error retrieving budget data.");
         res.redirect("/");
     });
@@ -121,8 +120,7 @@ exports.saveNotes = (req, res, next) => {
         }
         return exports.bankaccount(req, res);
     })
-    .catch(err => {
-        console.error(err);
+    .catch(() => {
         req.flash("error", "Error saving notes.");
         res.redirect("/financial/budget");
     });
