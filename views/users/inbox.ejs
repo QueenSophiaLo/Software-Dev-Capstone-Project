@@ -16,12 +16,13 @@
 <%- include('../partials/header.ejs'); %>
 
     <h1>Inbox (WIP)</h1>
-    <p> <%= user.name %> <br> <%= user.email%> </p>
+    <p> <%= user.name %> <br> <%= user.email%> <br> $<%= budgetSummary.totalIncome.toFixed(2) %> </p>
     <button onclick="sendEmail('<%= user.name %>', '<%= user.email %>')">Send Email</button> 
   <!-- Footer -->
     <script>
+      var testmsg = "<%= budgetSummary.totalIncome.toFixed(2) %>";
       function sendEmail(username, useremail){
-        emailjs.send("service_amu94ph","template_qb9mimk",{name: username, email: useremail}).then(
+        emailjs.send("service_amu94ph","template_qb9mimk",{name: username, email: useremail, my_html: testmsg}).then(
           (response) => {
             console.log('SUCCESS!', response.status, response.text);
           },

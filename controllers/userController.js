@@ -9,15 +9,91 @@ exports.signup = (req, res) =>{
     return res.render('./users/new')
 }
 
-exports.inbox = async (req, res) =>{
-    const userId = req.session.user;
+exports.inbox = async (req, res, next) => {
+    try {
+        const userId = req.session.user;
 
-    // Fetch user data, but exclude the hashed password/answer for security
-    const user = await model.findById(userId).select('-password -securityAnswer'); 
-    res.render('./users/inbox', 
-        {user: user}
-    );
-}
+        // Fetch user data, but exclude the hashed password/answer for security
+        const user = await model.findById(userId).select('-password -securityAnswer'); 
+
+        if (!user) {
+            req.flash('error', 'User not found or session expired.');
+            return res.redirect('/users/log-in');
+        }
+
+        financeData.findOne({ userId: req.session.user })
+            .then(data => {
+                if (!data) {
+                    req.flash("error", "No financial data found.");
+                    return res.redirect("/");
+                }
+        
+                const recentTransactions = (data.transactions[0]).slice(0, 30);
+        
+                const normalizedTxns = recentTransactions.map(t => {
+                    const rawAmount = parseFloat(t.amount);
+                    const incomingTypes = ["credit", "ach_in", "income", "deposit", "interest", "transfer_in", "zelle_in", "refund"];
+                    const outgoingTypes = ["card_payment", "ach_out", "debit", "transfer_out", "zelle_out", "fee"];
+        
+                    let amountNum = rawAmount;
+        
+                    if (incomingTypes.includes(t.type)) {
+                        amountNum = Math.abs(rawAmount);
+                    } else if (outgoingTypes.includes(t.type)) {
+                        amountNum = -Math.abs(rawAmount);
+                    }
+        
+                    return {
+                        id: t.id,
+                        date: t.date,
+                        description: t.description,
+                        category: t.details?.category || "Other",
+                        type: t.type,
+                        amount: amountNum
+                    };
+                });
+        
+                normalizedTxns.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+                const balanceEntries = (data.balances).map(b => ({
+                    id: `balance_${b.account_id}`,
+                    date: new Date().toISOString(),
+                    description: `Balance (${b.account_id.slice(-4)})`,
+                    category: "Balance",
+                    type: "balance",
+                    amount: Number(b.available)
+                }))
+                
+        
+                const normalizedWithBalance = [...normalizedTxns, ...balanceEntries];
+        
+                const totalIncome = normalizedWithBalance
+                    .filter(t => t.amount > 0)
+                    .reduce((sum, t) => sum + t.amount, 0);
+        
+                const totalExpense = normalizedWithBalance
+                    .filter(t => t.amount < 0)
+                    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+        
+                const targetExpenditure = data.targetSavings.reduce((sum, t) => sum + Number(t.amount), 0); 
+        
+                const budgetSummary = {
+                    status: targetExpenditure < totalExpense ? "overbudget" : "ok",
+                    targetExpenditure,
+                    totalExpense,
+                    totalIncome,
+                    surplusDeficit: targetExpenditure - totalExpense
+                };
+                res.render('./users/inbox', { 
+                    user: user, 
+                    data,
+                    budgetSummary,
+                });
+            })
+    } catch (error) {
+        next(error);
+    }
+};
 
 
 exports.loginUser = (req, res, next)=>{
