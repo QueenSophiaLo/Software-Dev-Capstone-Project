@@ -966,8 +966,6 @@ table tbody tr:hover {
   background-color: #0056b3;
 }
 
-
-
 /* === Sandbox Tab Area === */
 .sandbox-grid {
   display: grid;
@@ -991,7 +989,7 @@ table tbody tr:hover {
 }
 
 .sandbox-card.big {
-  height: 100%;
+  height: 93%;
 }
 
 .sandbox-form label {
